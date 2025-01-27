@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema({
       ref: 'Order', // Reference to the Order model
     },
   ],
+  username: { type: String, unique: true},
 });
 
 const User = mongoose.model('User', userSchema);

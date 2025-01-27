@@ -81,11 +81,11 @@ const deleteBlogPost = async (req, res) => {
   }
 };
 
-// Get blogs by a user with pagination
+
 const getUserBlogs = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { page = 1, limit = 10 } = req.query; // Pagination
+    const { page = 1, limit = 10 } = req.query; 
 
     const userBlogs = await BlogPost.find({ "uploadedBy.id": userId })
       .skip((page - 1) * limit)
@@ -100,6 +100,9 @@ const getUserBlogs = async (req, res) => {
     res.status(500).json({ message: "Error retrieving blog posts", error: error.message });
   }
 };
+
+
+
 
 // Update a blog post
 const updateBlogPost = async (req, res) => {
@@ -138,14 +141,10 @@ const updateBlogPost = async (req, res) => {
 // Get all blogs with pagination
 const getAllBlogs = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-
-    const allBlogs = await BlogPost.find({ blogStatus: 'Approved' }) 
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    const allBlogs = await BlogPost.find();
 
     if (!allBlogs || allBlogs.length === 0) {
-      return res.status(404).json({ message: "No approved blog posts found" });
+      return res.status(404).json({ message: "No blog posts found" });
     }
 
     res.status(200).json({ blogs: allBlogs });
@@ -153,6 +152,7 @@ const getAllBlogs = async (req, res) => {
     res.status(500).json({ message: "Error retrieving blog posts", error: error.message });
   }
 };
+
 
 
 
@@ -206,6 +206,26 @@ const fetchBlogById = async (req, res) => {
   }
 };
 
+const getBlogsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    const userBlogs = await BlogPost.find({ "uploadedBy.id": userId });
+
+    if (!userBlogs || userBlogs.length === 0) {
+      return res.status(404).json({ message: "No blog posts found for this user" });
+    }
+
+    res.status(200).json({ message: "Blogs retrieved successfully", blogs: userBlogs });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving blogs", error: error.message });
+  }
+};
+
+
 
 
 module.exports = {
@@ -216,5 +236,6 @@ module.exports = {
   updateBlogPost,
   getAllBlogs,
   updateBlogStatus,
-  fetchBlogById
+  fetchBlogById,
+  getBlogsByUserId  
 };

@@ -5,7 +5,7 @@ const blogSchema = new mongoose.Schema({
   heading: { type: String, required: true },
   description: { type: String, required: true },
   blogCategory: { type: String, required: true },
-  image: { type: Buffer }, // Assuming the image is stored as a buffer
+  image: { type: Buffer }, 
   isAccepted: { type: Boolean, default: false },
   createdDate: { type: Date, default: Date.now },
   updatedDate: { type: Date }

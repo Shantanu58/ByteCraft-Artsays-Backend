@@ -7,13 +7,15 @@ const {
   showWelcomeMessage, 
   getUserByEmail, 
   changePassword,
-  updateUserProfile 
+  updateUserProfile ,
+  getUserbypassword
 } = require('../controllers/UserController');
 const { uploadMiddleware } = require('../Middlewares/uploadMiddleware'); 
 const router = express.Router();
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.get('/userbypassword/:id', getUserbypassword);
 router.get('/user/:id', getUser);
 router.get('/welcome/:email', showWelcomeMessage);
 router.get('/user-by-email/:email', getUserByEmail);

@@ -1,16 +1,16 @@
 const BuyerRequest = require("../../../Models/Buyercustomrequest");
 
-const getBuyerRequestsByUserId = async (req, res) => {
+const getBuyerRequestsByArtistId = async (req, res) => {
     try {
-        const BuyerId = req.userID;
+        const ArtistId = req.userID; 
 
-        const buyerRequests = await BuyerRequest.find({ "Buyer.id": BuyerId })
+        const buyerRequests = await BuyerRequest.find({ "Artist.id": ArtistId })
             .populate("Buyer.id", "name profilePhoto lastName phone email")
-            .populate("Artist.id", "name profilePhoto lastName phone email"); 
+            .populate("Artist.id", "name profilePhoto lastName phone email");
 
         if (buyerRequests.length === 0) {
             return res.status(404).json({
-                message: "No buyer requests found for this user",
+                message: "No buyer requests found for this artist",
             });
         }
 
@@ -26,4 +26,5 @@ const getBuyerRequestsByUserId = async (req, res) => {
     }
 };
 
-module.exports = getBuyerRequestsByUserId;
+module.exports = getBuyerRequestsByArtistId;
+

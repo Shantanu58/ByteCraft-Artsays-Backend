@@ -6,17 +6,20 @@ const createBuyerRequest = async (req, res) => {
         const { error } = buyerRequestValidator.validate(req.body);
         if (error) return res.status(400).json({ message: error.details[0].message });
 
-        const { ProductName, Description, RequestStatus } = req.body;
-        const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;  
-        const BuyerId = req.userID;  
+        const { ProductName, Description, RequestStatus, Budget, Artist } = req.body;
+        const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;
+        const BuyerId = req.userID;
 
-        console.log("BuyerId:", BuyerId);  
+    
+        const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
 
         const newBuyerRequest = new BuyerRequest({
             ProductName,
             Description,
             BuyerImage,
             RequestStatus,
+            Budget,
+            Artist: artistId, 
             Buyer: { id: BuyerId },
         });
 
@@ -34,7 +37,4 @@ const createBuyerRequest = async (req, res) => {
     }
 };
 
-
-
- 
 module.exports = createBuyerRequest;

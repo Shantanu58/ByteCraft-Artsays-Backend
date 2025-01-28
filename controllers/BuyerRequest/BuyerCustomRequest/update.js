@@ -6,19 +6,23 @@ const updateBuyerRequest = async (req, res) => {
         const { error } = buyerRequestValidator.validate(req.body);
         if (error) return res.status(400).json({ message: error.details[0].message });
 
-        const { ProductName, Description, RequestStatus } = req.body;
-        const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;  
-        const BuyerId = req.userID;  
-        const { id } = req.params;  
+        const { ProductName, Description, RequestStatus, Budget, Artist } = req.body;
+        const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;
+        const BuyerId = req.userID;
+        const { id } = req.params;
 
         const buyerRequest = await BuyerRequest.findById(id);
         if (!buyerRequest) {
             return res.status(404).json({ message: "Buyer request not found" });
         }
 
+        const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
+
         if (ProductName) buyerRequest.ProductName = ProductName;
         if (Description) buyerRequest.Description = Description;
         if (RequestStatus) buyerRequest.RequestStatus = RequestStatus;
+        if (Budget) buyerRequest.Budget = Budget;
+        if (artistId) buyerRequest.Artist = artistId;
         if (BuyerImage) buyerRequest.BuyerImage = BuyerImage;
         buyerRequest.Buyer.id = BuyerId;
 

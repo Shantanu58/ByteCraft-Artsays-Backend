@@ -4,58 +4,70 @@ const User = require('../Models/usermode'); // Adjust the path as necessary
 const Product = require('../Models/Product');
 const { v4: uuidv4 } = require('uuid'); // For generating unique product IDs
 
-// Upload Product
 const uploadProduct = async (req, res) => {
-  const { productName, newPrice, oldPrice, size, description, paintedBy } = req.body;
-  const userId = req.user.userId; // ID from token payload after authentication middleware
-  const userRole = req.user.role; // role from token payload
+  console.log("Request Headers:", req.headers);
+  console.log("Request Body (raw):", req.body); // Log the raw body
+  console.log("Parsed Form Data:", req.body); // Assuming multer or similar parses it
+  const { productName, newPrice, oldPrice, size, description } = req.body;
+  const userId = req.user.userId;
+  const userRole = req.user.role;
 
-  const allowedRoles = ['super-admin', 'admin', 'artist']; // roles allowed to add products
+  const allowedRoles = ['super-admin', 'admin', 'artist'];
 
-  // Check if the user has permission to upload a product
   if (!allowedRoles.includes(userRole)) {
     return res.status(403).json({ message: "You do not have permission to upload a product." });
-  }  
-
-  // Check if there are between 1 and 5 images
-  if (!req.files || req.files.length < 1 || req.files.length > 5) {
-    return res.status(400).json({ message: "Please upload between 1 to 5 images." });
   }
 
-  const imagePaths = req.files.map(file => file.path); // Assuming `file.path` holds the image path
+  // Check if the main image is provided
+  if (!req.files || !req.files.mainImage) {
+    return res.status(400).json({ message: "Please upload a main image." });
+  }
+
+  const mainImage = req.files.mainImage[0]; // Access the main image
+
+  // Check if additional images are provided
+  const additionalImages = req.files.images || []; // Access additional images
+
+  // Validate required fields
+  if (!productName || !newPrice || !size || !description ) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
 
   const newProduct = new Product({
-    artistId: userId, // Set the artistId to the logged-in user's ID
+    artistId: userId,
     uploadedBy: {
       id: userId,
       role: userRole,
     },
     productId: uuidv4(),
-    images: imagePaths,
+    mainImage: mainImage.path, // Main image path
+    images: additionalImages.map(file => file.path), // Array of additional image paths
     productName,
     newPrice,
     oldPrice,
     size,
     description,
-    paintedBy,
+
   });
 
+  let session = null;
+
   try {
-    // Start a session for transaction
-    const session = await Product.startSession();
+    // Start a MongoDB session
+    session = await Product.startSession();
     session.startTransaction();
 
-    // Save the product
+    // Save the new product
     await newProduct.save({ session });
 
-    // Update the user's products list with the new product ID
+    // Update the user's product list
     await User.findByIdAndUpdate(
       userId,
       { $push: { products: newProduct._id } },
       { session }
     );
 
-    // Commit transaction
+    // Commit the transaction
     await session.commitTransaction();
     session.endSession();
 
@@ -63,13 +75,18 @@ const uploadProduct = async (req, res) => {
   } catch (error) {
     console.error("Error uploading product:", error.message);
 
-    // Rollback transaction in case of an error
-    await session.abortTransaction();
-    session.endSession();
+    if (session) {
+      await session.abortTransaction();
+      session.endSession();
+    }
 
     res.status(500).json({ message: "Error uploading product", error: error.message });
   }
 };
+
+
+
+
 const artistproducts=async (req, res) => {
   try {
     const artistId = new mongoose.Types.ObjectId(req.params.artistId); // Corrected line, using 'new'

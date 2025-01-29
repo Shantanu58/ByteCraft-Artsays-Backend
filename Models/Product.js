@@ -8,14 +8,15 @@ const productSchema = new mongoose.Schema({
     role: { type: String, required: true }
   },
   productId: { type: String, required: true },
-  images: [{ type: String, required: false }], // Array for up to 5 images
+  mainImage: { type: [String], required: true }, // Main image is required
+  images: { type: [String], default: [] }, // Optional additional images
   productName: { type: String, required: true },
   newPrice: { type: Number, required: true },
   oldPrice: { type: Number },
   size: { type: String, required: true },
   description: { type: String, required: true },
   numOfPurchases: { type: Number, default: 0 },
-  paintedBy: { type: String, required: true },
+
   createdAt: { type: Date, default: Date.now },
 });
 const Product = mongoose.model('Product', productSchema);

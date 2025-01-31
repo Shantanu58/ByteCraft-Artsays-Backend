@@ -17,6 +17,8 @@ const BuyerRequestSchema = new mongoose.Schema(
       enum: ['Approved', 'Rejected', 'Pending'],
       default: 'Pending',
     },
+    NegiotaiteBudget:{ type:Number ,required:false},
+    Notes:{type: String ,required:false}
   },
   { timestamps: true }
 );

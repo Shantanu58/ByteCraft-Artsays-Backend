@@ -7,7 +7,9 @@ const { createBuyerRequest,
     deleterequestdata,
     updatebuyerrequest,
     getBuyerrequestdata,
-    updateRequestStatusByBuyerId
+    updateRequestStatusByBuyerId,
+    NegiotaiteBudgetupdate,
+    getalldataforadmin
  } = require("../controllers/BuyerRequest/index");
 
 const uploadFiles = (req, res, next) => {
@@ -27,6 +29,10 @@ router.put("/update-buyer-request/:id", authMiddleware, uploadFiles, updatebuyer
 router.get("/get-buyer-request", authMiddleware,  getBuyerrequest);
 router.delete("/delete-buyer-requests/:id", deleterequestdata);
 router.get("/get-buyer-request-data", authMiddleware,getBuyerrequestdata);
-router.put("/update-request-status/:requestId", updateRequestStatusByBuyerId);
+router.put("/update-request-status/:requestId",authMiddleware, updateRequestStatusByBuyerId);
+router.put("/update-negiotaite-budget/:id",authMiddleware, NegiotaiteBudgetupdate);
+router.get("/get-data-admin",authMiddleware,getalldataforadmin)
+
+
 
 module.exports = router;

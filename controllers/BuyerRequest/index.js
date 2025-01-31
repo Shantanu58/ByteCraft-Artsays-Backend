@@ -3,7 +3,9 @@ const getBuyerrequest =require("./BuyerCustomRequest/getdata");
 const deleterequestdata =require("./BuyerCustomRequest/deletedata");
 const updatebuyerrequest =require("./BuyerCustomRequest/update");
 const getBuyerrequestdata=require("./BuyerRequest/getbuyerdata");
-const updateRequestStatusByBuyerId =require("./BuyerRequest/updaterequeststatus")
+const updateRequestStatusByBuyerId =require("./BuyerRequest/updaterequeststatus");
+const NegiotaiteBudgetupdate=require("./BuyerRequest/negiotaitebudgetupdate");
+const getalldataforadmin =require("./BuyerRequest/getalldataforadmin");
 
 
 module.exports = {
@@ -12,5 +14,7 @@ module.exports = {
     deleterequestdata,
     updatebuyerrequest,
     getBuyerrequestdata,
-    updateRequestStatusByBuyerId
+    updateRequestStatusByBuyerId,
+    NegiotaiteBudgetupdate,
+    getalldataforadmin
 };

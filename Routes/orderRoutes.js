@@ -1,33 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('../Models/orderModel'); // Adjust the path if necessary
-const User = require('../Models/usermode'); // Ensure you import User model for validation
+const { createOrder, getUserOrders } = require('../controllers/OrderController');
 
-// POST request to create a new order
-router.post('/create-order', async (req, res) => {
-    const { user_id, art_id, amount } = req.body;
+// Route to create an order
+router.post('/create-order', createOrder);
 
-    try {
-        // Check if the user exists
-        const user = await User.findById(user_id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Create a new order
-        const newOrder = new Order({
-            user_id,
-            art_id,
-            amount
-        });
-
-        await newOrder.save();
-
-        res.status(201).json({ message: "Order created successfully", order: newOrder });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error creating order" });
-    }
-});
+// Route to get all orders for a specific user
+router.get('/user-orders/:user_id', getUserOrders);
 
 module.exports = router;

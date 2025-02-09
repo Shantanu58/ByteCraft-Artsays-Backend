@@ -16,6 +16,7 @@ const conversationRoutes = require('../Routes/conversationRoutes.js');
 const messageRoutes = require('../Routes/messageRoutes.js');
 const getuserRoutes = require('../Routes/getandupdateuserRoutes.js');
 const BuyerCustomRequestRoutes =require('../Routes/BuyerCustomRequestRoutes.js')
+const CropImageRoutes=require('../Routes/CropImageRoutes.js');
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -38,5 +39,6 @@ module.exports = (app) => {
   app.use('/auth', getuserRoutes);
   
   app.use('/api', BuyerCustomRequestRoutes );
+  app.use('/api', CropImageRoutes);
   
 };

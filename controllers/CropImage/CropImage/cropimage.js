@@ -1,36 +1,33 @@
-const Image = require('../../../Models/CropImage');  
+const Crop = require('../../../Models/CropImage');  
 
-const addImage = async (req, res) => {
+const addCrop = async (req, res) => {
   try {
+    const { mainImage, otherImages } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    if (!mainImage) {
+      return res.status(400).json({ message: 'Main image is required' });
     }
 
+    console.log('Received crop data:', req.body);
 
-    console.log('Uploaded file:', req.file);
-
- 
-    const imagePath = req.file.path; 
-
- 
-    const newImage = new Image({
-      image: imagePath,  
+    const newCrop = new Crop({
+      mainImage,
+      otherImages: otherImages || [],
     });
 
-    const savedImage = await newImage.save();
+    const savedCrop = await newCrop.save();
 
     res.status(201).json({
-      message: 'Image added successfully',
-      data: savedImage,
+      message: 'Crop added successfully',
+      data: savedCrop,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: 'Error while adding image',
+      message: 'Error while adding crop',
       error: error.message,
     });
   }
 };
 
-module.exports = addImage;
+module.exports = addCrop;

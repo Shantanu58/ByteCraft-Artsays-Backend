@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
   blogCount: { type: Number, default: 0 },
-  userType: { type: String, required: true, enum: ['Artist', 'Buyer','Super-Admin', 'Admin'] },
-  role: { type: String, enum: ['super-admin', 'admin', 'artist', 'buyer'], required: true,strictPopulate:false },
+  userType: { type: String, required: true, enum: ['Artist', 'Buyer','Super-Admin', 'Admin','Seller'] },
+  role: { type: String, enum: ['super-admin', 'admin', 'artist', 'buyer','seller'], required: true,strictPopulate:false },
   refreshToken: { type: String },
   // Address fields for updating user profile
   address: {

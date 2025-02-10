@@ -3,15 +3,16 @@ const BuyerRequest = require("../../../Models/Buyercustomrequest");
 const updateBuyerRequestByBuyerId = async (req, res) => {
     try {
         const requestId = req.params.id; 
-        const { ProductName, Description, Budget, NegiotaiteBudget, Notes } = req.body;
+        const { ProductName, Description, Budget, NegiotaiteBudget, BuyerNotes } = req.body;
 
-       
-        if (!ProductName || !Description || !Budget || !NegiotaiteBudget || !Notes) {
+   
+        if (!ProductName || !Description || !Budget || !NegiotaiteBudget || !BuyerNotes) {
             return res.status(400).json({
-                message: "ProductName, Description, Budget, NegiotaiteBudget, and Notes are required.",
+                message: "ProductName, Description, Budget, NegiotaiteBudget, and BuyerNotes are required.",
             });
         }
 
+   
         const existingRequest = await BuyerRequest.findById(requestId);
 
         if (!existingRequest) {
@@ -20,14 +21,14 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             });
         }
 
-       
-        if (existingRequest.updateCount >= 2) {
+  
+        if (existingRequest.isUpdated) {
             return res.status(400).json({
-                message: "This buyer request has already been updated twice and cannot be updated again.",
+                message: "This buyer request has already been updated and cannot be updated again.",
             });
         }
 
-       
+      
         const updatedRequest = await BuyerRequest.findByIdAndUpdate(
             requestId,
             { 
@@ -36,9 +37,9 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
                     Description, 
                     Budget, 
                     NegiotaiteBudget, 
-                    Notes
-                },
-                $inc: { updateCount: 1 } 
+                    BuyerNotes,
+                    isUpdated: true  
+                }
             },
             { new: true }
         );
@@ -48,9 +49,10 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             updatedRequest,
         });
     } catch (error) {
+    
         if (error.message.includes("Cannot update repeat")) {
             return res.status(400).json({
-                message: "This buyer request has already two time updated and cannot be updated again.",
+                message: "This buyer request has already been updated and cannot be updated again.",
             });
         }
         

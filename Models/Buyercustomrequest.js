@@ -18,7 +18,10 @@ const BuyerRequestSchema = new mongoose.Schema(
       default: 'Pending',
     },
     NegiotaiteBudget:{ type:Number ,required:false},
-    Notes:{type: String ,required:false}
+    Notes:{type: String ,required:false},
+    updateCount: { type: Number, default: 0 },
+    BuyerNotes:{type: String ,required:false},
+    isUpdated: { type: Boolean, default: false } 
   },
   { timestamps: true }
 );

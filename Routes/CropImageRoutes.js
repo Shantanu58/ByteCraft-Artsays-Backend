@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../Middlewares/Multerfile/images"); 
+const { upload, handleBase64Images }= require("../Middlewares/Multerfile/images"); 
 const authMiddleware = require("../Middlewares/authMiddleware");
 const {
       cropImage,
@@ -9,7 +9,7 @@ const {
 
 
 
-router.post("/cropImage", upload, cropImage);
+router.post("/cropImage", upload,handleBase64Images, cropImage);
 router.get("/get-cropImage",getImage)
 
 module.exports = router;

@@ -18,6 +18,7 @@ const getuserRoutes = require('../Routes/getandupdateuserRoutes.js');
 const BuyerCustomRequestRoutes =require('../Routes/BuyerCustomRequestRoutes.js')
 const CropImageRoutes=require('../Routes/CropImageRoutes.js');
 const SellerRoutes=require('../Routes/sellerRoutes.js')
+const ArtistproductRoutes=require('../Routes/artistproductRoutes.js')
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -42,5 +43,7 @@ module.exports = (app) => {
   app.use('/api', BuyerCustomRequestRoutes );
   app.use('/api', CropImageRoutes);
   app.use('/api', SellerRoutes);
+  app.use('/api', ArtistproductRoutes);
+  
   
 };

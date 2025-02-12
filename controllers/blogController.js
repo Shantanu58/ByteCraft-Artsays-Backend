@@ -118,9 +118,9 @@ const updateBlogPost = async (req, res) => {
       return res.status(404).json({ message: "Blog post not found" });
     }
 
-    if (blogPost.uploadedBy.id.toString() !== userId) {
-      return res.status(403).json({ message: "You are not authorized to edit this blog post" });
-    }
+    // if (blogPost.uploadedBy.id.toString() !== userId) {
+    //   return res.status(403).json({ message: "You are not authorized to edit this blog post" });
+    // }
 
     blogPost.blogName = blogName || blogPost.blogName;
     blogPost.blogAuthor = blogAuthor || blogPost.blogAuthor;
@@ -152,6 +152,21 @@ const getAllBlogs = async (req, res) => {
     res.status(500).json({ message: "Error retrieving blog posts", error: error.message });
   }
 };
+
+const getAllBlogsstatusAprroved = async (req, res) => {
+  try {
+    const approvedBlogs = await BlogPost.find({ blogStatus: "Approved" });
+
+    if (!approvedBlogs || approvedBlogs.length === 0) {
+      return res.status(404).json({ message: "No approved blog posts found" });
+    }
+
+    res.status(200).json({ blogs: approvedBlogs });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving approved blog posts", error: error.message });
+  }
+};
+
 
 
 
@@ -225,6 +240,29 @@ const getBlogsByUserId = async (req, res) => {
   }
 };
 
+const getBlogsByUserIdandstaus = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    const userBlogs = await BlogPost.find({ 
+      "uploadedBy.id": userId, 
+      blogStatus: "Approved" 
+    });
+
+    if (!userBlogs || userBlogs.length === 0) {
+      return res.status(404).json({ message: "No approved blog posts found for this user" });
+    }
+
+    res.status(200).json({ message: "Approved blogs retrieved successfully", blogs: userBlogs });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving blogs", error: error.message });
+  }
+};
+
+
 
 
 
@@ -237,5 +275,7 @@ module.exports = {
   getAllBlogs,
   updateBlogStatus,
   fetchBlogById,
-  getBlogsByUserId  
+  getBlogsByUserId,
+  getAllBlogsstatusAprroved,
+  getBlogsByUserIdandstaus
 };

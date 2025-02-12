@@ -52,7 +52,10 @@ const Messages = require("./Models/Messages.js");
 const app = express();
 
 // Middleware
-app.use(express.json());
+// app.use(express.json());
+app.use(express.json({ limit: '100mb' })); // Increase payload limit
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
 app.use(cors());
 
 // Connect to MongoDB

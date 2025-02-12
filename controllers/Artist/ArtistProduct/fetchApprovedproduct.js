@@ -3,17 +3,14 @@ const User = require('../../../Models/usermode');
 
 const getApprovedCropsByArtist = async (req, res) => {
   try {
-   
-    const artists = await User.find({ userType: 'Artist' })
-      .select('_id name lastName profilePhoto');
+    // Fetch artist IDs directly
+    const artistIds = await User.find({ userType: 'Artist' }).distinct('_id');
 
-    if (artists.length === 0) {
+    if (artistIds.length === 0) {
       return res.status(404).json({ message: 'No artists found' });
     }
 
-    const artistIds = artists.map(artist => artist._id);
-
-  
+    // Fetch only crops belonging to artists
     const crops = await Crop.find({ userId: { $in: artistIds }, status: 'Approved' })
       .populate('userId', 'name lastName profilePhoto');
 
@@ -25,6 +22,7 @@ const getApprovedCropsByArtist = async (req, res) => {
       message: 'Approved crops from artists fetched successfully',
       data: crops,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({

@@ -17,8 +17,11 @@ const messageRoutes = require('../Routes/messageRoutes.js');
 const getuserRoutes = require('../Routes/getandupdateuserRoutes.js');
 const BuyerCustomRequestRoutes =require('../Routes/BuyerCustomRequestRoutes.js')
 const CropImageRoutes=require('../Routes/CropImageRoutes.js');
-const SellerRoutes=require('../Routes/sellerRoutes.js')
-const ArtistproductRoutes=require('../Routes/artistproductRoutes.js')
+const SellerRoutes=require('../Routes/sellerRoutes.js');
+const ArtistproductRoutes=require('../Routes/artistproductRoutes.js');
+const BuyerproductRoutes=require('../Routes/buyerproductroutes.js');
+const ResellproductRoutes=require('../Routes/resellproductRoutes.js');
+const TransactionRoutes=require('../Routes/transaction.js')
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -44,6 +47,9 @@ module.exports = (app) => {
   app.use('/api', CropImageRoutes);
   app.use('/api', SellerRoutes);
   app.use('/api', ArtistproductRoutes);
-  
+  app.use('/api',BuyerproductRoutes);
+  app.use('/api',ResellproductRoutes);
+  app.use('/api',TransactionRoutes);
+ 
   
 };

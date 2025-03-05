@@ -5,7 +5,8 @@ const authMiddleware = require("../Middlewares/authMiddleware");
 const {
       cropImage,
       getImage,
-      editcropimage
+      editcropimage,
+      getAllApprovedstatusproduct
  } = require("../controllers/CropImage/index");
 
 
@@ -13,5 +14,6 @@ const {
 router.post("/cropImage", upload, cropImage);
 router.get("/get-cropImage",getImage);
 router.put('/editcropImage/:id',  editcropimage);
+router.get("/get-allapprovedproduct",getAllApprovedstatusproduct);
 
 module.exports = router;

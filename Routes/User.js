@@ -8,7 +8,8 @@ const {
   getUserByEmail, 
   changePassword,
   updateUserProfile ,
-  getUserbypassword
+  getUserbypassword,
+  createuser
 } = require('../controllers/UserController');
 const { uploadMiddleware } = require('../Middlewares/uploadMiddleware'); 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.get('/welcome/:email', showWelcomeMessage);
 router.get('/user-by-email/:email', getUserByEmail);
 router.put('/user/:id', verifyJWT, uploadMiddleware, updateUserProfile); 
 router.put('/user/:id/change-password',verifyJWT, changePassword);
+router.post('/createuser',createuser);
 
 
 module.exports = router;

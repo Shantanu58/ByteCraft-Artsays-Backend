@@ -2,17 +2,9 @@ const BuyerRequest = require("../../../Models/Buyercustomrequest");
 
 const updateBuyerRequestByBuyerId = async (req, res) => {
     try {
-        const requestId = req.params.id; 
-        const { ProductName, Description, Budget, NegiotaiteBudget, BuyerNotes } = req.body;
+        const requestId = req.params.id;
+        const { ProductName, Description, NegiotaiteBudget, MaxBudget, MinBudget, BuyerNotes,  rejectedcomment, BuyerStatus } = req.body;
 
-   
-        if (!ProductName || !Description || !Budget || !NegiotaiteBudget || !BuyerNotes) {
-            return res.status(400).json({
-                message: "ProductName, Description, Budget, NegiotaiteBudget, and BuyerNotes are required.",
-            });
-        }
-
-   
         const existingRequest = await BuyerRequest.findById(requestId);
 
         if (!existingRequest) {
@@ -21,25 +13,34 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             });
         }
 
-  
-        if (existingRequest.isUpdated) {
-            return res.status(400).json({
-                message: "This buyer request has already been updated and cannot be updated again.",
-            });
+        let updateFields = {  rejectedcomment, BuyerStatus };
+
+ 
+        if (ProductName || Description || NegiotaiteBudget || MaxBudget || MinBudget || BuyerNotes) {
+            if (existingRequest.updateCount >= 2) {
+                return res.status(400).json({
+                    message: "This buyer request has already been updated and cannot be updated again.",
+                });
+            }
+
+            updateFields = {
+                ...updateFields,
+                ProductName,
+                Description,
+                NegiotaiteBudget,
+                MaxBudget,
+                MinBudget,
+                BuyerNotes,
+            };
         }
 
-      
         const updatedRequest = await BuyerRequest.findByIdAndUpdate(
             requestId,
-            { 
-                $set: { 
-                    ProductName, 
-                    Description, 
-                    Budget, 
-                    NegiotaiteBudget, 
-                    BuyerNotes,
-                    isUpdated: true  
-                }
+            {
+                $set: updateFields,
+                ...(Object.keys(updateFields).some(field => 
+                    ["ProductName", "Description", "NegiotaiteBudget", "MaxBudget", "MinBudget", "BuyerNotes"].includes(field)
+                ) && { $inc: { updateCount: 1 } }),
             },
             { new: true }
         );
@@ -49,14 +50,6 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             updatedRequest,
         });
     } catch (error) {
-    
-        if (error.message.includes("Cannot update repeat")) {
-            return res.status(400).json({
-                message: "This buyer request has already been updated and cannot be updated again.",
-            });
-        }
-        
-    
         res.status(500).json({
             message: "Error updating the buyer request",
             error: error.message,

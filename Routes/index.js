@@ -21,7 +21,11 @@ const SellerRoutes=require('../Routes/sellerRoutes.js');
 const ArtistproductRoutes=require('../Routes/artistproductRoutes.js');
 const BuyerproductRoutes=require('../Routes/buyerproductroutes.js');
 const ResellproductRoutes=require('../Routes/resellproductRoutes.js');
-const TransactionRoutes=require('../Routes/transaction.js')
+const TransactionRoutes=require('../Routes/transaction.js');
+const PackagingMaterialRoutes=require('../Routes/packagingmaterialRoutes.js');
+const Biddingroutes=require('../Routes/biddingRoutes.js')
+const Categoryroutes=require('../Routes/categoryRoutes.js')
+const Adminroutes=require('../Routes/adminRoutes.js')
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -50,6 +54,13 @@ module.exports = (app) => {
   app.use('/api',BuyerproductRoutes);
   app.use('/api',ResellproductRoutes);
   app.use('/api',TransactionRoutes);
+  app.use('/api',PackagingMaterialRoutes);
+  app.use('/api',Biddingroutes);
+  app.use('/api',Categoryroutes);
+  app.use('/api',Adminroutes);
+
+  
+
  
   
 };

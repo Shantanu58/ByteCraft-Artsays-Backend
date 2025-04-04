@@ -3,14 +3,14 @@ const User = require('../../../Models/usermode');
 
 const getApprovedCropsByArtist = async (req, res) => {
   try {
-    // Fetch artist IDs directly
+
     const artistIds = await User.find({ userType: 'Artist' }).distinct('_id');
 
     if (artistIds.length === 0) {
       return res.status(404).json({ message: 'No artists found' });
     }
 
-    // Fetch only crops belonging to artists
+
     const crops = await Crop.find({ userId: { $in: artistIds }, status: 'Approved' })
       .populate('userId', 'name lastName profilePhoto');
 

@@ -11,6 +11,10 @@ const updtaeproductrequestatus =require("./BuyerProductPurchased/updaterequestst
 const getbuyerpurchaseproductdetails=require("./BuyerProductPurchased/getbuyerpruchesproductdetailsbyid");
 const buyersoldproduct=require("./BuyerSoldProduct/soldproduct")
 const gettransaction=require("./Transaction/gettransaction")
+const gettransactionbybuyerid=require("./Transaction/gettransactionbybuyerid")
+const packageingmaterialproductbuyer=require("./BuyerPackagingMaterial/buyerpackagingmaterial")
+const getbuyerrequestbyid =require("./BuyerProductPurchased/getproductrequestbyid")
+const getsoldproductbyid=require("./BuyerSoldProduct/getsoldproductbyid")
 
 
 
@@ -28,5 +32,9 @@ module.exports = {
    updtaeproductrequestatus,
    getbuyerpurchaseproductdetails,
    buyersoldproduct,
-   gettransaction
+   gettransaction,
+   packageingmaterialproductbuyer,
+   gettransactionbybuyerid,
+   getbuyerrequestbyid ,
+   getsoldproductbyid
 };

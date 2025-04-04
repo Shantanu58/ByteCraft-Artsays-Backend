@@ -1,4 +1,6 @@
 const BlogPost = require("../Models/blogpostModel");
+const  validateBlogPost = require("../Validators/Blog/Blog");
+const User = require("../Models/usermode");
 const multer = require("multer");
 const path = require("path");
 const Joi = require("joi"); 
@@ -29,41 +31,90 @@ const upload = multer({
 });
 
 
-const validateBlogPost = (data) => {
-  const schema = Joi.object({
-    blogName: Joi.string().required(),
-    blogAuthor: Joi.string().required(),
-    blogDescription: Joi.string().required(),
-    category: Joi.string().required(),
-  });
-  return schema.validate(data);
-};
+// const validateBlogPost = (data) => {
+//   const schema = Joi.object({
+//     blogName: Joi.string().required(),
+//     blogAuthor: Joi.string().required(),
+//     blogDescription: Joi.string().required(),
+//     category: Joi.string().required(),
+//   });
+//   return schema.validate(data);
+// };
 
 // Create a new blog post
+
 const createBlogPost = async (req, res) => {
   try {
+ 
     const { error } = validateBlogPost(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
+    if (error) {
+      return res.status(400).json({ 
+        success: false,
+        message: error.details[0].message 
+      });
+    }
 
-    const { blogName, blogAuthor, blogDescription, category } = req.body;
-    const blogImage = req.file ? req.file.path : null;
+    const { 
+      blogName, 
+      slug, 
+      summary, 
+      blogDescription, 
+      category, 
+      tags 
+    } = req.body;
+    
     const userId = req.user.userId;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const existingSlug = await BlogPost.findOne({ slug });
+    if (existingSlug) {
+      return res.status(400).json({
+        success: false,
+        message: "Slug already exists, please choose a different one"
+      });
+    }
 
     const newBlogPost = new BlogPost({
       blogName,
-      blogAuthor,
+      slug,
+      summary,
+      blogAuthor: user.name || user.username,
       blogDescription,
-      blogImage,
       category,
-      uploadedBy: { id: userId },
+      tags: tags ? tags.split(',') : [],
+      blogImage: req.file ? req.file.path : null,
+      uploadedBy: { 
+        id: userId,
+        name: user.name || user.username
+      }
     });
 
     await newBlogPost.save();
-    res.status(201).json({ message: "Blog post created successfully", blog: newBlogPost });
+    
+    res.status(201).json({ 
+      success: true,
+      message: "Blog post created successfully", 
+      data: newBlogPost 
+    });
+    
   } catch (error) {
-    res.status(500).json({ message: "Error creating blog post", error: error.message });
+    console.error("Error creating blog post:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Error creating blog post", 
+      error: error.message 
+    });
   }
 };
+
+
 
 // Delete a blog post
 const deleteBlogPost = async (req, res) => {
@@ -108,7 +159,15 @@ const getUserBlogs = async (req, res) => {
 const updateBlogPost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { blogName, blogAuthor, blogDescription, category } = req.body;
+    const { 
+      blogName, 
+      slug, 
+      summary, 
+      category, 
+      tags,
+      blogDescription 
+    } = req.body;
+    
     const blogImage = req.file ? req.file.path : null;
     const userId = req.user.userId;
 
@@ -118,23 +177,33 @@ const updateBlogPost = async (req, res) => {
       return res.status(404).json({ message: "Blog post not found" });
     }
 
-    // if (blogPost.uploadedBy.id.toString() !== userId) {
-    //   return res.status(403).json({ message: "You are not authorized to edit this blog post" });
-    // }
-
+  
     blogPost.blogName = blogName || blogPost.blogName;
-    blogPost.blogAuthor = blogAuthor || blogPost.blogAuthor;
-    blogPost.blogDescription = blogDescription || blogPost.blogDescription;
+    blogPost.slug = slug || blogPost.slug;
+    blogPost.summary = summary || blogPost.summary;
     blogPost.category = category || blogPost.category;
+    blogPost.blogDescription = blogDescription || blogPost.blogDescription;
+
+    if (tags) {
+      blogPost.tags = typeof tags === 'string' ? tags.split(',') : tags;
+    }
 
     if (blogImage) {
       blogPost.blogImage = blogImage;
     }
 
     await blogPost.save();
-    res.status(200).json({ message: "Blog post updated successfully", blog: blogPost });
+    
+    res.status(200).json({ 
+      message: "Blog post updated successfully", 
+      blog: blogPost 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error updating blog post", error: error.message });
+    console.error("Error updating blog post:", error);
+    res.status(500).json({ 
+      message: "Error updating blog post", 
+      error: error.message 
+    });
   }
 };
 
@@ -209,7 +278,8 @@ const fetchBlogById = async (req, res) => {
       return res.status(400).json({ message: "Invalid Blog ID format" });
     }
 
-    const blog = await BlogPost.findById(id);
+    
+    const blog = await BlogPost.findById(id).populate('uploadedBy.id', 'name email lastName profilePhoto bio');
 
     if (!blog) {
       return res.status(404).json({ message: "Blog post not found" });

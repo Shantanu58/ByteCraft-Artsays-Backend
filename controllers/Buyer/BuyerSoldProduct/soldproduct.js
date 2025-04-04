@@ -37,6 +37,7 @@ const getTotalQuantityPurchased = async (req, res) => {
                 $project: {
                     _id: 0,
                     productId: "$_id",
+                    userId: "$userDetails._id",
                     buyerName: { 
                         $cond: {
                             if: { $and: ["$userDetails.name", "$userDetails.lastName"] },

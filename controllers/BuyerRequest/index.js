@@ -7,6 +7,7 @@ const updateRequestStatusByBuyerId =require("./BuyerRequest/updaterequeststatus"
 const NegiotaiteBudgetupdate=require("./BuyerRequest/negiotaitebudgetupdate");
 const getalldataforadmin =require("./BuyerRequest/getalldataforadmin");
 const NegiotaiteBuyerupdate=require("./BuyerCustomRequest/negiotaitebuyerupdate")
+const getdatabybuyerid=require("./BuyerRequest/getdatabybuyerid")
 
 
 module.exports = {
@@ -18,5 +19,6 @@ module.exports = {
     updateRequestStatusByBuyerId,
     NegiotaiteBudgetupdate,
     getalldataforadmin,
-    NegiotaiteBuyerupdate
+    NegiotaiteBuyerupdate,
+    getdatabybuyerid
 };

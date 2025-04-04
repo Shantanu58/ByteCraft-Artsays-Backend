@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 // const redisClient = require('../config/redis');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/usermode');
+const BusinessProfile = require("../models/sellerbusinessprofile");
+const ArtistDetails = require('../models/artistdetails');
 
 // Register User
 const registerUser = async (req, res) => {
@@ -64,41 +66,64 @@ const registerUser = async (req, res) => {
 
 
 const loginUser = async (req, res) => {
-  const { emailOrPhone, password } = req.body;
-
   try {
-   
-    const user = await User.findOne({ email: emailOrPhone }) || await User.findOne({ phone: emailOrPhone });
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+    console.log("Request Body:", req.body); // Debugging line
+    const { emailOrPhone, password } = req.body;
+
+    if (!emailOrPhone || !password) {
+      return res.status(400).json({ message: 'Email/Phone and password are required' });
     }
 
-  
+    let formattedPhone = emailOrPhone;
+    if (/^\d{10}$/.test(emailOrPhone)) {
+      formattedPhone = `+91${emailOrPhone}`;
+    }
+
+    let user = await User.findOne({ email: emailOrPhone });
+
+    if (!user) {
+      user = await User.findOne({
+        $or: [{ phone: emailOrPhone }, { phone: formattedPhone }]
+      });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found. Please check your email or phone number.' });
+    }
+
+    if (!user.password) {
+      return res.status(500).json({ message: 'User password is missing. Contact support.' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Invalid password' });
+      return res.status(401).json({ message: 'Incorrect password. Please try again.' });
     }
 
- 
     const token = jwt.sign(
       { userId: user._id, role: user.role, userType: user.userType },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    console.log(user.role);
-
-   
     res.status(200).json({
       message: 'Login successful',
-      token, 
-      userType: user.userType, 
+      token,
+      userType: user.userType,
+      email: user.email,
+      phone: user.phone
     });
+
   } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Internal server error.', error: error.message });
   }
 };
+
+
+
+
+
 
 
 const getUserbypassword = async (req, res) => {
@@ -274,6 +299,140 @@ const changePassword = async (req, res) => {
 
 
 
+
+
+
+const allowedUserTypes = ["Artist", "Buyer", "Seller", "Super-Admin"];
+
+const createuser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, password, confirmPassword, userType, businessName, artistName } = req.body;
+
+   
+    if (!firstName || !lastName || !password || !confirmPassword || !userType) {
+      return res.status(400).json({ message: "All required fields are missing" });
+    }
+
+    if (!email && !phone) {
+      return res.status(400).json({ message: "Either email or phone number is required" });
+    }
+
+    if (!allowedUserTypes.includes(userType)) {
+      return res.status(400).json({ 
+        message: "Invalid userType. Must be 'Artist', 'Buyer', 'Seller', or 'Super-Admin'." 
+      });
+    }
+
+    
+    const roleSpecificRequirements = {
+      Seller: () => !businessName && "Business name is required for sellers",
+      Artist: () => !artistName && "Artist name is required for artists"
+    };
+
+    const errorMessage = roleSpecificRequirements[userType]?.();
+    if (errorMessage) return res.status(400).json({ message: errorMessage });
+
+   
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+    }
+
+    
+    if (phone) {
+    
+      const cleanPhone = phone.replace(/^\+91/, '');
+      if (cleanPhone.length !== 10 || !/^[0-9]{10}$/.test(cleanPhone)) {
+        return res.status(400).json({ message: "Phone number must be 10 digits" });
+      }
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+
+    const existingUser = await User.findOne({ 
+      $or: [
+        ...(email ? [{ email }] : []), 
+        ...(phone ? [{ phone: `+91${String(phone).replace(/^\+91/, '')}` }] : []) 
+      ]
+    });
+
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(400).json({ message: "Email or phone number is already registered" });
+      }
+      if (existingUser.phone === `+91${phone.replace(/^\+91/, '')}`) {
+        return res.status(400).json({ message: "Email or Phone number is already registered" });
+      }
+    }
+
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      name: firstName,
+      lastName,
+      email: email || undefined,
+      phone: phone ? `+91${phone.replace(/^\+91/, '')}` : undefined,
+      password: hashedPassword,
+      userType,
+      role: userType.toLowerCase(),
+    });
+
+    await newUser.save();
+
+  
+    if (userType === "Seller") {
+      const newBusinessProfile = new BusinessProfile({
+        userId: newUser._id,
+        businessName,
+      });
+      await newBusinessProfile.save();
+      newUser.businessProfile = newBusinessProfile._id;
+    }
+    else if (userType === "Artist") {
+      const newArtistDetails = new ArtistDetails({
+        userId: newUser._id,
+        artistName,
+      });
+      await newArtistDetails.save();
+      newUser.artistDetails = newArtistDetails._id;
+    }
+
+    await newUser.save();
+
+    res.status(201).json({ 
+      success: true,
+      message: `${userType} account created successfully`,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        userType: newUser.userType,
+        role: newUser.role,
+        ...(userType === "Seller" && { businessProfile: newUser.businessProfile }),
+        ...(userType === "Artist" && { artistDetails: newUser.artistDetails })
+      }
+    });
+
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+
+
+
+
 module.exports = {
   registerUser,
   loginUser,
@@ -282,6 +441,7 @@ module.exports = {
   getUserByEmail,
   updateUserProfile,
   changePassword,
-  getUserbypassword
+  getUserbypassword,
+  createuser
 
 };

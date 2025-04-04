@@ -15,7 +15,11 @@ const {
     updtaeproductrequestatus,
     getbuyerpurchaseproductdetails,
     buyersoldproduct,
-    gettransaction
+    gettransaction,
+    packageingmaterialproductbuyer,
+    gettransactionbybuyerid,
+    getbuyerrequestbyid,
+    getsoldproductbyid
   
  } = require("../controllers/Buyer/Index");
 
@@ -32,4 +36,8 @@ const {
  router.get("/getbuyerproductpurchaseddetailsbyid/:id",getbuyerpurchaseproductdetails);
  router.get("/buyersoldproduct",buyersoldproduct);
  router.get("/gettransactionbuyer",gettransaction);
+ router.get("/gettransactionbybuyerid/:buyerId",gettransactionbybuyerid);
+router.get("/getpackagingmaterialproductbuyer",packageingmaterialproductbuyer);
+router.get("/getproductrequestbyid/:buyerId",getbuyerrequestbyid);
+router.get("/buyersoldproductbyid/:userId",getsoldproductbyid);
 module.exports = router;

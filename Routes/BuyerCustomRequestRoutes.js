@@ -10,7 +10,8 @@ const { createBuyerRequest,
     updateRequestStatusByBuyerId,
     NegiotaiteBudgetupdate,
     getalldataforadmin,
-    NegiotaiteBuyerupdate
+    NegiotaiteBuyerupdate,
+    getdatabybuyerid
  } = require("../controllers/BuyerRequest/index");
 
 const uploadFiles = (req, res, next) => {
@@ -33,6 +34,7 @@ router.get("/get-buyer-request-data", authMiddleware,getBuyerrequestdata);
 router.put("/update-request-status/:requestId",authMiddleware, updateRequestStatusByBuyerId);
 router.put("/update-negiotaite-budget/:id",authMiddleware, NegiotaiteBudgetupdate);
 router.get("/get-data-admin",authMiddleware,getalldataforadmin)
+router.get("/get-data-adminbyid/:buyerId",authMiddleware,getdatabybuyerid)
 router.put("/update-negiotaite-Buyer-budget/:id",authMiddleware, NegiotaiteBuyerupdate);
 
 

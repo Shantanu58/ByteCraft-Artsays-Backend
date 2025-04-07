@@ -26,6 +26,7 @@ const PackagingMaterialRoutes=require('../Routes/packagingmaterialRoutes.js');
 const Biddingroutes=require('../Routes/biddingRoutes.js')
 const Categoryroutes=require('../Routes/categoryRoutes.js')
 const Adminroutes=require('../Routes/adminRoutes.js')
+const ForgotPasswordRoutes=require('../Routes/forgotpasswordRoutes.js')
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -58,6 +59,7 @@ module.exports = (app) => {
   app.use('/api',Biddingroutes);
   app.use('/api',Categoryroutes);
   app.use('/api',Adminroutes);
+  app.use('/api',ForgotPasswordRoutes);
 
   
 

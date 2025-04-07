@@ -11,6 +11,9 @@ const userSchema = new mongoose.Schema({
   userType: { type: String, required: true, enum: ['Artist', 'Buyer','Super-Admin', 'Admin','Seller'] },
   role: { type: String, enum: ['super-admin', 'admin', 'artist', 'buyer','seller'], required: true,strictPopulate:false },
   refreshToken: { type: String },
+
+  resetPasswordOtp: { type: String }, 
+  resetPasswordOtpExpiry: { type: Date },
   // Address fields for updating user profile
   address: {
     line1: { type: String, default: '' },

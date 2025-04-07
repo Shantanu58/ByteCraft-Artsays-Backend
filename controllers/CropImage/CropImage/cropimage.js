@@ -28,7 +28,7 @@ const addProduct = async (req, res) => {
     const productData = {
       ...value,
       userId: value.userId,
-      mainCategory: value.mainCategory, // Already the string value
+      mainCategory: value.mainCategory, 
       category: value.category,
       subCategory: value.subCategory,
       productType: value.productType,
@@ -66,8 +66,31 @@ const addProduct = async (req, res) => {
       unlockableContent: value.unlockableContent || false,
       partOfCollection: value.partOfCollection || false,
       collectionName: value.partOfCollection ? value.collectionName : undefined,
+      editionSize: value.partOfCollection ? parseInt(value.editionSize) : undefined,
       rarityType: value.rarityType || undefined,
       traits: value.traits || undefined,
+
+      originRegion: value.originRegion || undefined,
+      periodEra: value.periodEra || undefined,
+      antiqueCondition: value.antiqueCondition || undefined,
+      restorationHistory: value.restorationHistory || undefined,
+      provenanceHistory: value.provenanceHistory || undefined,
+      engravingMarkings: value.engravingMarkings || undefined,
+      patinaWear: value.patinaWear || undefined,
+      isHandmade: value.isHandmade || false,
+      originalReproduction: value.originalReproduction || undefined,
+      museumExhibitionHistory: value.museumExhibitionHistory || undefined,
+      customEngravingAvailable: value.customEngravingAvailable || false,
+
+      //Address Field
+
+      addressLine1: value.addressLine1|| undefined,
+      addressLine2:value.addressLine2 || undefined,
+      landmark: value.landmark || undefined,
+      city: value.city || undefined,
+      state:  value.state || undefined,
+      country:  value.country || undefined,
+      pincode:  value.pincode || undefined,
       // Legal & Compliance fields
       ownershipConfirmation: value.ownershipConfirmation,
       copyrightRights: value.copyrightRights,
@@ -130,13 +153,13 @@ const addProduct = async (req, res) => {
         });
       });
     }
- // Handle duplicate key error specifically
- if (error.code === 11000) {
-  return res.status(400).json({
-    message: 'Duplicate key error',
-    details: ['This token ID already exists for the given smart contract']
-  });
-}
+    // Handle duplicate key error specifically
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: 'Duplicate key error',
+        details: ['This token ID already exists for the given smart contract']
+      });
+    }
     res.status(500).json({
       message: 'Error while adding product',
       error: error.message

@@ -297,6 +297,38 @@ const productSchema = new mongoose.Schema(
     type: String,
     trim: true
   },
+  editionSize: {
+    type: Number,
+    min: 1
+  },
+  addressLine1: {
+    type: String,
+    trim: true
+  },
+  addressLine2: {
+    type: String,
+    trim: true
+  },
+  landmark: {
+    type: String,
+    trim: true
+  },
+  city: {
+    type: String,
+    trim: true
+  },
+  state: {
+    type: String,
+    trim: true
+  },
+  country: {
+    type: String,
+    trim: true
+  },
+  pincode: {
+    type: String,
+    trim: true
+  },
   rarityType: {
     type: String,
     enum: ['common', 'rare', 'epic', 'legendary']
@@ -305,6 +337,52 @@ const productSchema = new mongoose.Schema(
     type: String,
     trim: true
   },
+
+  // Antique & Vintage Details
+originRegion: {
+  type: String,
+  enum: ['france', 'japan', 'india', 'china', 'uk', 'usa']
+},
+periodEra: {
+  type: String,
+  enum: ['victorian', 'art_deco', 'ming', 'edwardian', 'georgian']
+},
+antiqueCondition: {
+  type: String,
+  enum: ['new', 'excellent', 'good', 'fair', 'poor']
+},
+restorationHistory: {
+  type: String,
+  trim: true
+},
+provenanceHistory: {
+  type: String,
+  trim: true
+},
+engravingMarkings: {
+  type: String,
+  trim: true
+},
+patinaWear: {
+  type: String,
+  trim: true
+},
+isHandmade: {
+  type: Boolean,
+  default: false
+},
+originalReproduction: {
+  type: String,
+  enum: ['original', 'replica', 'reproduction']
+},
+museumExhibitionHistory: {
+  type: String,
+  trim: true
+},
+customEngravingAvailable: {
+  type: Boolean,
+  default: false
+}
   },
   { timestamps: true }
 );

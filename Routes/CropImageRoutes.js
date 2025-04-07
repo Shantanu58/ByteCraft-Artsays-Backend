@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../Middlewares/Multerfile/product"); 
-const authMiddleware = require("../Middlewares/authMiddleware");
+// const authMiddleware = require("../Middlewares/authMiddleware");
 const {
       cropImage,
       getImage,

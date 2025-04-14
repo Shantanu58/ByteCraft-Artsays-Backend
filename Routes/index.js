@@ -7,7 +7,7 @@ const shippingRoute = require('../Routes/shippingRoutes');
 const socialBlogRoute = require('../Routes/socialBlogRoutes');
 const requestedArtsRoutes = require('../Routes/requestedArtsRoutes');
 const artistRoutes = require('../Routes/artistRoutes.js');
-const productRoute = require('../Routes/ProductRout.js');
+// const productRoute = require('../Routes/ProductRout.js');
 const buyerRoutes = require('../Routes/buyerRoutes');
 const cartRoutes = require('../Routes/cartRoutes.js');
 const wishlistRoutes = require('../Routes/wishlist.js');
@@ -27,6 +27,8 @@ const Biddingroutes=require('../Routes/biddingRoutes.js')
 const Categoryroutes=require('../Routes/categoryRoutes.js')
 const Adminroutes=require('../Routes/adminRoutes.js')
 const ForgotPasswordRoutes=require('../Routes/forgotpasswordRoutes.js')
+const EmailRoutes = require("../Routes/EmailSettingRoutes.js");
+const TemplatesRoutes = require("../Routes/EmailTemplatesRoutes.js")
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -38,7 +40,7 @@ module.exports = (app) => {
   app.use('/social', socialBlogRoute);
   app.use('/api/requested-arts', requestedArtsRoutes);
   app.use('/artist', artistRoutes);
-  app.use('/product-management', productRoute);
+  // app.use('/product-management', productRoute);
   app.use('/uploads', require('express').static('uploads'));
   app.use('/api/buyers', buyerRoutes);
   app.use('/api/cart', cartRoutes);
@@ -60,8 +62,8 @@ module.exports = (app) => {
   app.use('/api',Categoryroutes);
   app.use('/api',Adminroutes);
   app.use('/api',ForgotPasswordRoutes);
-
-  
+  app.use("/api", EmailRoutes)
+  app.use("/api", TemplatesRoutes)
 
  
   

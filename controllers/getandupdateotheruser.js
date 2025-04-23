@@ -618,290 +618,16 @@ const getTaxLegalCompliance = async (req, res) => {
   }
 };
 
-// const updatestatus=async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-//     res.status(200).json(updatedUser);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const updatestatus = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { status } = req.body;
-
-//     // Find and update the user
-//     const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     // Only send email if status was changed to "Verified"
-//     if (status === 'Verified' && updatedUser.email) {
-//       try {
-//         const emailSettings = await EmailSetting.findOne();
-//         if (!emailSettings) {
-//           console.log("No email settings found in database");
-//           return res.status(200).json(updatedUser);
-//         }
-
-//         const transporter = nodemailer.createTransport({
-//           host: emailSettings.mailHost,
-//           port: emailSettings.mailPort,
-//           secure: emailSettings.mailEncryption === "SSL",
-//           auth: {
-//             user: emailSettings.mailUsername,
-//             pass: emailSettings.mailPassword,
-//           },
-//         });
-
-//         // Prepare image attachment
-//         const imagePath = path.join(__dirname, "../controllers/Email/Artsays.png");
-//         let attachments = [];
-        
-//         if (fs.existsSync(imagePath)) {
-//           attachments.push({
-//             filename: "artsays-logo.png",
-//             path: imagePath,
-//             cid: "artsays_logo",
-//           });
-//         }
-
-//         const loginLink = "http://localhost:3000/login";
-
-//         const mailOptions = {
-//           from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
-//           to: updatedUser.email,
-//           subject: `Your ${updatedUser.userType} Account Has Been Verified`,
-//           html: `
-//             <!DOCTYPE html>
-//             <html>
-//             <head>
-//               <meta charset="UTF-8">
-//               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//               <style type="text/css">
-//                 /* Base Styles */
-//                 body, html {
-//                   margin: 0;
-//                   padding: 0;
-//                   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-//                   line-height: 1.6;
-//                   color: #333333;
-//                   background-color: #f7f9fc;
-//                 }
-                
-//                 /* Email Container */
-//                 .email-container {
-//                   max-width: 600px;
-//                   margin: 0 auto;
-//                   background: #ffffff;
-//                   border-radius: 8px;
-//                   overflow: hidden;
-//                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-//                 }
-                
-//                 /* Header Section */
-//                 .header {
-//                   background: linear-gradient(135deg,rgb(187, 125, 89) 0%, rgb(187, 125, 89) 100%);
-//                   padding: 30px 20px;
-//                   text-align: center;
-//                   color: white;
-//                 }
-                
-//                 .logo-container {
-//                   margin-bottom: 20px;
-//                 }
-                
-//                 .logo {
-//                   width: 250px;
-//                   height: auto;
-//                 }
-                
-//                 .welcome-heading {
-//                   font-size: 24px;
-//                   font-weight: 600;
-//                   margin: 0;
-//                   color: black;
-//                 }
-                
-//                 /* Content Section */
-//                 .content {
-//                   padding: 30px;
-//                 }
-                
-//                 .greeting {
-//                   font-size: 18px;
-//                   margin-bottom: 25px;
-//                   color: #2d3748;
-//                 }
-                
-//                 .message {
-//                   margin-bottom: 25px;
-//                   font-size: 16px;
-//                   color: #4a5568;
-//                 }
-                
-//                 /* Status Box */
-//                 .status-box {
-//                   background: rgb(244, 236, 233);
-//                   border-left: 4px solid rgb(173, 100, 73);
-//                   padding: 20px;
-//                   margin: 25px 0;
-//                   border-radius: 4px;
-//                   text-align: center;
-//                 }
-                
-//                 .status-title {
-//                   font-size: 20px;
-//                   font-weight: 600;
-//                   color: #2d3748;
-//                   margin-bottom: 10px;
-//                 }
-                
-//                 .status-text {
-//                   font-size: 16px;
-//                   color: #4a5568;
-//                 }
-                
-//                 /* Action Button */
-//                 .action-button {
-//                   display: inline-block;
-//                   background: rgb(173, 100, 73);
-//                   color: white !important;
-//                   text-decoration: none;
-//                   padding: 12px 30px;
-//                   border-radius: 4px;
-//                   font-weight: 600;
-//                   margin: 20px 0;
-//                   text-align: center;
-//                 }
-                
-//                 /* Footer */
-//                 .footer {
-//                   text-align: center;
-//                   padding: 20px;
-//                   background:rgb(244, 236, 233);
-//                   font-size: 14px;
-//                   color: #718096;
-//                 }
-                
-//                 .signature {
-//                   margin-top: 25px;
-//                   padding-top: 25px;
-//                   border-top: 1px solid #e2e8f0;
-//                 }
-                
-//                 .support-text {
-//                   margin-top: 20px;
-//                   font-size: 15px;
-//                 }
-                
-//                 /* Responsive */
-//                 @media only screen and (max-width: 600px) {
-//                   .email-container {
-//                     border-radius: 0;
-//                   }
-//                   .logo {
-//                     width: 200px;
-//                   }
-//                   .content {
-//                     padding: 20px;
-//                   }
-//                 }
-//               </style>
-//             </head>
-//             <body>
-//               <div class="email-container">
-//                 <!-- Header with Logo -->
-//                 <div class="header">
-//                   <div class="logo-container">
-//                     ${attachments.length > 0 ? `<img src="cid:artsays_logo" alt="Artsays Logo" class="logo">` : ""}
-//                   </div>
-//                   <h1 class="welcome-heading">Account Verified</h1>
-//                 </div>
-                
-//                 <!-- Main Content -->
-//                 <div class="content">
-//                   <p class="greeting">Dear ${updatedUser.name} ${updatedUser.lastName},</p>
-                  
-//                   <p class="message">We're pleased to inform you that your ${updatedUser.userType} account on Artsays has been successfully verified by our team.</p>
-                  
-//                   <!-- Status Box -->
-//                   <div class="status-box">
-//                     <div class="status-title">Your Account Status: Verified</div>
-//                     <div class="status-text">
-//                       You now have full access to all ${updatedUser.userType} features on Artsays.
-//                     </div>
-//                   </div>
-                  
-//                   <!-- Action Button -->
-//                   <div style="text-align: center;">
-//                     <a href="${loginLink}" class="action-button">Access Your Account</a>
-//                   </div>
-                  
-//                   <p class="message">With your verified status, you can now:</p>
-//                   <ul style="margin-left: 20px; color: #4a5568;">
-//                     <li>Access all platform features</li>
-//                     ${updatedUser.userType === 'Seller' ? '<li>List your products for sale</li>' : ''}
-//                     ${updatedUser.userType === 'Artist' ? '<li>Showcase your artwork</li>' : ''}
-//                     <li>Connect with other community members</li>
-//                     <li>Enjoy full platform benefits</li>
-//                   </ul>
-                  
-//                   <!-- Support Section -->
-//                   <div class="support-text">
-//                     <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
-//                   </div>
-                  
-//                   <!-- Signature -->
-//                   <div class="signature">
-//                     <p>Best regards,</p>
-//                     <p><strong>The Artsays Team</strong></p>
-//                   </div>
-//                 </div>
-                
-//                 <!-- Footer -->
-//                 <div class="footer">
-//                   <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
-//                 </div>
-//               </div>
-//             </body>
-//             </html>
-//           `,
-//           attachments
-//         };
-
-//         await transporter.sendMail(mailOptions);
-//         console.log(`Verification email sent to ${updatedUser.email}`);
-//       } catch (emailError) {
-//         console.error("Failed to send verification email:", emailError);
-//       }
-//     }
-
-//     res.status(200).json(updatedUser);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 const updatestatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Find and update the user
     const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Send email if status was changed to "Verified" or "Unverified"
     if ((status === 'Verified' || status === 'Unverified') && updatedUser.email) {
       try {
         const emailSettings = await EmailSetting.findOne();
@@ -920,8 +646,10 @@ const updatestatus = async (req, res) => {
           },
         });
 
-        // Prepare image attachment
-        const imagePath = path.join(__dirname, "../controllers/Email/Artsays.png");
+        const imagePath = path.join(
+          __dirname, 
+          "../controllers/Email/Artsays.png" // Adjusted path
+        );
         let attachments = [];
         
         if (fs.existsSync(imagePath)) {
@@ -934,7 +662,6 @@ const updatestatus = async (req, res) => {
 
         const loginLink = "http://localhost:3000/login";
 
-        // Determine icon and colors based on status
         const statusConfig = {
           Verified: {
             icon: `
@@ -949,8 +676,8 @@ const updatestatus = async (req, res) => {
             title: "Account Verified",
             message: `We're pleased to inform you that your ${updatedUser.userType} account on Artsays has been successfully verified by our team.`,
             benefits: `
-              <p class="message">With your verified status, you can now:</p>
-              <ul style="margin-left: 20px; color: #4a5568;">
+              <p style="margin-bottom: 15px; font-size: 16px; color: #4a5568;">With your verified status, you can now:</p>
+              <ul style="margin-left: 20px; color: #4a5568; margin-bottom: 25px;">
                 <li>Access all platform features</li>
                 ${updatedUser.userType === 'Seller' ? '<li>List your products for sale</li>' : ''}
                 ${updatedUser.userType === 'Artist' ? '<li>Showcase your artwork</li>' : ''}
@@ -973,8 +700,8 @@ const updatestatus = async (req, res) => {
             title: "Account Status Changed",
             message: `We're informing you that your ${updatedUser.userType} account on Artsays has been marked as Unverified.`,
             benefits: `
-              <p class="message">Please note:</p>
-              <ul style="margin-left: 20px; color: #4a5568;">
+              <p style="margin-bottom: 15px; font-size: 16px; color: #4a5568;">Please note:</p>
+              <ul style="margin-left: 20px; color: #4a5568; margin-bottom: 25px;">
                 <li>Some platform features may be restricted</li>
                 <li>Please contact support if you believe this is an error</li>
                 <li>You may need to submit additional verification documents</li>
@@ -995,191 +722,56 @@ const updatestatus = async (req, res) => {
             <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style type="text/css">
-                /* Base Styles */
-                body, html {
-                  margin: 0;
-                  padding: 0;
-                  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                  line-height: 1.6;
-                  color: #333333;
-                  background-color: #f7f9fc;
-                }
-                
-                /* Email Container */
-                .email-container {
-                  max-width: 600px;
-                  margin: 0 auto;
-                  background: #ffffff;
-                  border-radius: 8px;
-                  overflow: hidden;
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Header Section */
-                .header {
-                  background: linear-gradient(135deg,rgb(187, 125, 89) 0%, rgb(187, 125, 89) 100%);
-                  padding: 30px 20px;
-                  text-align: center;
-                  color: white;
-                }
-                
-                .logo-container {
-                  margin-bottom: 20px;
-                }
-                
-                .logo {
-                  width: 250px;
-                  height: auto;
-                }
-                
-                .welcome-heading {
-                  font-size: 24px;
-                  font-weight: 600;
-                  margin: 0;
-                  color: black;
-                }
-                
-                /* Content Section */
-                .content {
-                  padding: 30px;
-                }
-                
-                .greeting {
-                  font-size: 18px;
-                  margin-bottom: 25px;
-                  color: #2d3748;
-                }
-                
-                .message {
-                  margin-bottom: 25px;
-                  font-size: 16px;
-                  color: #4a5568;
-                }
-                
-                /* Status Box */
-                .status-box {
-                  background: ${config.bgColor};
-                  border-left: 4px solid ${config.borderColor};
-                  padding: 20px;
-                  margin: 25px 0;
-                  border-radius: 4px;
-                  text-align: center;
-                }
-                
-                .status-title {
-                  font-size: 20px;
-                  font-weight: 600;
-                  margin-bottom: 10px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  gap: 8px;
-                }
-                
-                .status-text {
-                  font-size: 16px;
-                  color: #4a5568;
-                }
-                
-                /* Action Button */
-                .action-button {
-                  display: inline-block;
-                  background: rgb(173, 100, 73);
-                  color: white !important;
-                  text-decoration: none;
-                  padding: 12px 30px;
-                  border-radius: 4px;
-                  font-weight: 600;
-                  margin: 20px 0;
-                  text-align: center;
-                }
-                
-                /* Footer */
-                .footer {
-                  text-align: center;
-                  padding: 20px;
-                  background:rgb(244, 236, 233);
-                  font-size: 14px;
-                  color: #718096;
-                }
-                
-                .signature {
-                  margin-top: 25px;
-                  padding-top: 25px;
-                  border-top: 1px solid #e2e8f0;
-                }
-                
-                .support-text {
-                  margin-top: 20px;
-                  font-size: 15px;
-                }
-                
-                /* Responsive */
+              <style>
                 @media only screen and (max-width: 600px) {
-                  .email-container {
-                    border-radius: 0;
-                  }
-                  .logo {
-                    width: 200px;
-                  }
-                  .content {
-                    padding: 20px;
-                  }
+                  .outer-container { padding: 0px 0 !important; }
+                  .email-container { border-radius: 0 !important; }
+                  .content { padding: 20px !important; }
                 }
               </style>
             </head>
-            <body>
-              <div class="email-container">
-                <!-- Header with Logo -->
-                <div class="header">
-                  <div class="logo-container">
-                    ${attachments.length > 0 ? `<img src="cid:artsays_logo" alt="Artsays Logo" class="logo">` : ""}
-                  </div>
-                  <h1 class="welcome-heading">${config.title}</h1>
-                </div>
-                
-                <!-- Main Content -->
-                <div class="content">
-                  <p class="greeting">Dear ${updatedUser.name} ${updatedUser.lastName},</p>
-                  
-                  <p class="message">${config.message}</p>
-                  
-                  <!-- Status Box -->
-                  <div class="status-box">
-                    <div class="status-title" style="color: ${config.color}">
-                      ${config.icon}
-                      <span>Your Account Status: ${status}</span>
+            <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f2f2f2;">
+              <div class="outer-container" style="padding: 80px 0; background-color: #f2f2f2; width: 100%;">
+                <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                  <div class="header" style="background: linear-gradient(135deg, rgb(204, 151, 121) 0%, rgb(204, 151, 121) 100%); padding: 30px 20px; text-align: center; color: white;">
+                    <div class="logo-container" style="margin-bottom: 20px;">
+                      ${attachments.length > 0 ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">` : ""}
                     </div>
-                    <div class="status-text">
-                      ${status === 'Verified' 
-                        ? 'You now have full access to all features on Artsays.' 
-                        : 'Some features may be restricted until verification is complete.'}
+                    <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">${config.title}</h1>
+                  </div>
+
+                  <div class="content" style="padding: 30px;">
+                    <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${updatedUser.name} ${updatedUser.lastName},</p>
+                    
+                    <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">${config.message}</p>
+
+                    <div style="background: ${config.bgColor}; border-left: 4px solid ${config.borderColor}; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        ${config.icon}
+                        <h2 style="margin: 0; font-size: 20px; color: ${config.color};">Account Status: ${status}</h2>
+                      </div>
+                      <p style="margin: 0; color: #4a5568; font-size: 16px;">
+                        ${status === 'Verified' 
+                          ? 'You now have full access to all features on Artsays.' 
+                          : 'Some features may be restricted until verification is complete.'}
+                      </p>
+                    </div>
+
+                    ${config.benefits}
+
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${loginLink}" style="display: inline-block; background: rgb(173, 100, 73); color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600;">Access Your Account</a>
+                    </div>
+
+                    <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+                      <p style="margin: 0;">Best regards,</p>
+                      <p style="margin: 0; font-weight: 600;">The Artsays Team</p>
                     </div>
                   </div>
-                  
-                  <!-- Action Button -->
-                  <div style="text-align: center;">
-                    <a href="${loginLink}" class="action-button">Access Your Account</a>
-                  </div>
-                  
-                  ${config.benefits}
-                  
-                  <!-- Support Section -->
-                  <div class="support-text">
-                    <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
-                  </div>
-                  
-                  <!-- Signature -->
-                  <div class="signature">
-                    <p>Best regards,</p>
-                    <p><strong>The Artsays Team</strong></p>
-                  </div>
-                </div>
-                
-                <!-- Footer -->
-                <div class="footer">
-                  <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+
+                  <div style="text-align: center; padding: 20px; background:rgb(244, 236, 233); font-size: 14px; color: #718096;">
+                          <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+                      </div>
                 </div>
               </div>
             </body>

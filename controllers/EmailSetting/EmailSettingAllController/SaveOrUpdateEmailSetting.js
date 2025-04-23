@@ -2,19 +2,41 @@ const EmailSetting = require("../../../Models/EmailSetting");
 
 const saveOrUpdateEmailSettings = async (req, res) => {
   try {
+    // Transform snake_case to camelCase
+    const transformedData = {
+      mailDriver: req.body.mail_driver,
+      mailHost: req.body.mail_host,
+      mailPort: req.body.mail_port,
+      mailUsername: req.body.mail_username,
+      mailPassword: req.body.mail_password,
+      mailEncryption: req.body.mail_encryption,
+      mailFromAddress: req.body.mail_from_address,
+      mailFromName: req.body.mail_from_name
+    };
+
     const emailSettings = await EmailSetting.findOne();
 
     if (!emailSettings) {
-      const newSettings = new EmailSetting(req.body);
+      const newSettings = new EmailSetting(transformedData);
       await newSettings.save();
-      return res.json({ message: "Email settings saved successfully" });
+      return res.json({ 
+        success: true,
+        message: "Email settings saved successfully" 
+      });
     } else {
-      Object.assign(emailSettings, req.body);
+      Object.assign(emailSettings, transformedData);
       await emailSettings.save();
-      return res.json({ message: "Email settings updated successfully" });
+      return res.json({ 
+        success: true,
+        message: "Email settings updated successfully" 
+      });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error saving email settings:", error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
   }
 };
 

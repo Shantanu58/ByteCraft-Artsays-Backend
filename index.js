@@ -45,7 +45,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const path = require('path');
-const User = require("./Models/usermode"); 
+const User = require("./Models/usermode"); // Assuming this is your User model
 const Conversation = require("./Models/Conversations.js");
 const Messages = require("./Models/Messages.js");
 
@@ -53,7 +53,7 @@ const app = express();
 
 // Middleware
 // app.use(express.json());
-app.use(express.json({ limit: '100mb' })); 
+app.use(express.json({ limit: '100mb' })); // Increase payload limit
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 app.use(cors());

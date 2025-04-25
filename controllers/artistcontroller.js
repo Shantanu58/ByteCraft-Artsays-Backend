@@ -5,9 +5,6 @@ const router = express.Router();
 const User = require('../Models/usermode'); // Adjust the path as necessary
 const Product = require('../Models/Product');
 
-
-
-
   const artists= async (req, res) => {
     try {
       const artists = await User.find({ userType: 'Artist' });

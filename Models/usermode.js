@@ -98,20 +98,6 @@ const userSchema = new mongoose.Schema({
   },
  
   status: { type: String, enum: ['Verified', 'Unverified'], default: 'Unverified' },
-
-  sessions: [{
-    _id: mongoose.Schema.Types.ObjectId,
-    deviceType: String,
-    deviceName: String,
-    browser: String,
-    os: String,
-    ipAddress: String,
-    location: String,
-    userAgent: String,
-    lastActive: Date,
-    createdAt: { type: Date, default: Date.now }
-  }],
-  currentSessionId: mongoose.Schema.Types.ObjectId
 });
 
 const User = mongoose.model('User', userSchema);

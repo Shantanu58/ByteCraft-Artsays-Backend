@@ -12,7 +12,7 @@ const {
 
 
 router.post("/cropImage", upload, cropImage);
-router.get("/get-cropImage/:id",getImage);
+router.get("/get-cropImage",getImage);
 router.put('/editcropImage/:id',editcropimage);
 router.get("/get-allapprovedproduct",getAllApprovedstatusproduct);
 

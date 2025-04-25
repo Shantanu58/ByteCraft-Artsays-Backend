@@ -1,35 +1,36 @@
-const Product = require('../../../Models/CropImage');
+const Crop = require('../../../Models/CropImage');
+const User = require('../../../Models/usermode');
 
-const getProductById = async (req, res) => {
+const getCropsByArtist = async (req, res) => {
   try {
-    const { id } = req.params;
+ 
+    const artists = await User.find({ userType: 'Artist' }).select('_id name lastName profilePhoto');
 
-    const product = await Product.findById(id);
+    if (artists.length === 0) {
+      return res.status(404).json({ message: 'No artists found' });
+    }
 
-    if (!product) {
-      return res.status(404).json({
-        message: 'Product not found'
-      });
+    const artistIds = artists.map(artist => artist._id);
+
+  
+    const crops = await Crop.find({ userId: { $in: artistIds } })
+      .populate('userId', 'name lastName profilePhoto');
+
+    if (crops.length === 0) {
+      return res.status(404).json({ message: 'No crops found for artists' });
     }
 
     res.status(200).json({
-      message: 'Product fetched successfully',
-      data: product
+      message: 'Crops fetched successfully',
+      data: crops,
     });
   } catch (error) {
-    console.error('Error fetching product by ID:', error);
-
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({
-        message: 'Invalid product ID'
-      });
-    }
-
+    console.error(error);
     res.status(500).json({
-      message: 'Error while fetching product',
-      error: error.message
+      message: 'Error fetching crops',
+      error: error.message,
     });
   }
 };
 
-module.exports = getProductById;
+module.exports = getCropsByArtist;

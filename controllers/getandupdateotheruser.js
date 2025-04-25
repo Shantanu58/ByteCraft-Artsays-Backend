@@ -9,6 +9,10 @@ const BusinessProfile = require('../models/sellerbusinessprofile');
 const SellIDetailsAndArtwork = require('../models/sellingdetailsandartwork');
 const TaxLegalCompliance = require('../models/taxandlegal');
 const multer = require('multer');
+const path = require("path");
+const fs = require("fs");
+const EmailSetting = require("../Models/EmailSetting");
+const nodemailer = require("nodemailer");
 
 const getUserById = async (req, res) => {
   try {
@@ -614,23 +618,180 @@ const getTaxLegalCompliance = async (req, res) => {
   }
 };
 
-const updatestatus=async (req, res) => {
+const updatestatus = async (req, res) => {
   try {
     const { id } = req.params;
+    const { status } = req.body;
+
     const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    if ((status === 'Verified' || status === 'Unverified') && updatedUser.email) {
+      try {
+        const emailSettings = await EmailSetting.findOne();
+        if (!emailSettings) {
+          console.log("No email settings found in database");
+          return res.status(200).json(updatedUser);
+        }
+
+        const transporter = nodemailer.createTransport({
+          host: emailSettings.mailHost,
+          port: emailSettings.mailPort,
+          secure: emailSettings.mailEncryption === "SSL",
+          auth: {
+            user: emailSettings.mailUsername,
+            pass: emailSettings.mailPassword,
+          },
+        });
+
+        const imagePath = path.join(
+          __dirname, 
+          "../controllers/Email/Artsays.png" // Adjusted path
+        );
+        let attachments = [];
+        
+        if (fs.existsSync(imagePath)) {
+          attachments.push({
+            filename: "artsays-logo.png",
+            path: imagePath,
+            cid: "artsays_logo",
+          });
+        }
+
+        const loginLink = "http://localhost:3000/login";
+
+        const statusConfig = {
+          Verified: {
+            icon: `
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            `,
+            color: "#28a745",
+            bgColor: "#e8f5e9",
+            borderColor: "#28a745",
+            title: "Account Verified",
+            message: `We're pleased to inform you that your ${updatedUser.userType} account on Artsays has been successfully verified by our team.`,
+            benefits: `
+              <p style="margin-bottom: 15px; font-size: 16px; color: #4a5568;">With your verified status, you can now:</p>
+              <ul style="margin-left: 20px; color: #4a5568; margin-bottom: 25px;">
+                <li>Access all platform features</li>
+                ${updatedUser.userType === 'Seller' ? '<li>List your products for sale</li>' : ''}
+                ${updatedUser.userType === 'Artist' ? '<li>Showcase your artwork</li>' : ''}
+                <li>Connect with other community members</li>
+                <li>Enjoy full platform benefits</li>
+              </ul>
+            `
+          },
+          Unverified: {
+            icon: `
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            `,
+            color: "#dc3545",
+            bgColor: "#fce8e8",
+            borderColor: "#dc3545",
+            title: "Account Status Changed",
+            message: `We're informing you that your ${updatedUser.userType} account on Artsays has been marked as Unverified.`,
+            benefits: `
+              <p style="margin-bottom: 15px; font-size: 16px; color: #4a5568;">Please note:</p>
+              <ul style="margin-left: 20px; color: #4a5568; margin-bottom: 25px;">
+                <li>Some platform features may be restricted</li>
+                <li>Please contact support if you believe this is an error</li>
+                <li>You may need to submit additional verification documents</li>
+              </ul>
+            `
+          }
+        };
+
+        const config = statusConfig[status];
+
+        const mailOptions = {
+          from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
+          to: updatedUser.email,
+          subject: `Your ${updatedUser.userType} Account Status - ${status}`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                @media only screen and (max-width: 600px) {
+                  .outer-container { padding: 0px 0 !important; }
+                  .email-container { border-radius: 0 !important; }
+                  .content { padding: 20px !important; }
+                }
+              </style>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f2f2f2;">
+              <div class="outer-container" style="padding: 80px 0; background-color: #f2f2f2; width: 100%;">
+                <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                  <div class="header" style="background: linear-gradient(135deg, rgb(204, 151, 121) 0%, rgb(204, 151, 121) 100%); padding: 30px 20px; text-align: center; color: white;">
+                    <div class="logo-container" style="margin-bottom: 20px;">
+                      ${attachments.length > 0 ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">` : ""}
+                    </div>
+                    <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">${config.title}</h1>
+                  </div>
+
+                  <div class="content" style="padding: 30px;">
+                    <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${updatedUser.name} ${updatedUser.lastName},</p>
+                    
+                    <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">${config.message}</p>
+
+                    <div style="background: ${config.bgColor}; border-left: 4px solid ${config.borderColor}; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        ${config.icon}
+                        <h2 style="margin: 0; font-size: 20px; color: ${config.color};">Account Status: ${status}</h2>
+                      </div>
+                      <p style="margin: 0; color: #4a5568; font-size: 16px;">
+                        ${status === 'Verified' 
+                          ? 'You now have full access to all features on Artsays.' 
+                          : 'Some features may be restricted until verification is complete.'}
+                      </p>
+                    </div>
+
+                    ${config.benefits}
+
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${loginLink}" style="display: inline-block; background: rgb(173, 100, 73); color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600;">Access Your Account</a>
+                    </div>
+
+                    <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+                      <p style="margin: 0;">Best regards,</p>
+                      <p style="margin: 0; font-weight: 600;">The Artsays Team</p>
+                    </div>
+                  </div>
+
+                  <div style="text-align: center; padding: 20px; background:rgb(244, 236, 233); font-size: 14px; color: #718096;">
+                          <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+                      </div>
+                </div>
+              </div>
+            </body>
+            </html>
+          `,
+          attachments
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Status change email (${status}) sent to ${updatedUser.email}`);
+      } catch (emailError) {
+        console.error("Failed to send status change email:", emailError);
+      }
+    }
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
-
-
 
 module.exports = { getUserById,
   updateuserprofile,

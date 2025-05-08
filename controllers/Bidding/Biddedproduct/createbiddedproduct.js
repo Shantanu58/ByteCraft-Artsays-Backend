@@ -41,7 +41,7 @@ const createBiddedProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
-    // Fetch all necessary user and product data
+
     const [buyerUser, productDetails, superAdmins] = await Promise.all([
       User.findById(buyer),
       Bidding.findById(product).populate('user', 'name email'),
@@ -70,7 +70,7 @@ const createBiddedProduct = async (req, res) => {
 
     const savedBiddedProduct = await newBiddedProduct.save();
 
-    // Send email notifications
+
     try {
       const emailSettings = await EmailSetting.findOne();
       if (emailSettings) {
@@ -84,7 +84,7 @@ const createBiddedProduct = async (req, res) => {
           },
         });
 
-        // Prepare image attachment
+     
         const imagePath = path.join(__dirname, "../../../controllers/Email/Artsays.png");
         let attachments = [];
         if (fs.existsSync(imagePath)) {

@@ -9,7 +9,7 @@ const BiddingSchema = new mongoose.Schema(
     },
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Crop',
+      ref: 'Product',
     },
     startingBid: {
       type: Number,

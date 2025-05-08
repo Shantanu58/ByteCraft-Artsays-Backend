@@ -7,7 +7,6 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const EmailSetting = require("../Models/EmailSetting");
-// const path = require("path");
 const fs = require("fs");
 
 const storage = multer.diskStorage({
@@ -310,11 +309,11 @@ const deleteBlogPost = async (req, res) => {
 
 const getUserBlogs = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const { userId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
     const userBlogs = await BlogPost.find({ "uploadedBy.id": userId })
-      .skip((page - 1) * limit)
+      .skip((page - 1) * parseInt(limit))
       .limit(parseInt(limit));
 
     if (!userBlogs || userBlogs.length === 0) {
@@ -325,11 +324,13 @@ const getUserBlogs = async (req, res) => {
 
     res.status(200).json({ blogs: userBlogs });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving blog posts", error: error.message });
+    res.status(500).json({
+      message: "Error retrieving blog posts",
+      error: error.message,
+    });
   }
 };
+;
 
 // Update a blog post
 const updateBlogPost = async (req, res) => {

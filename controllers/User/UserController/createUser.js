@@ -14,7 +14,7 @@ const fs = require("fs");
 
 const allowedUserTypes = ["Artist", "Buyer", "Seller", "Super-Admin"];
 
-// Helper function to send email to super-admin
+
 const notifySuperAdmin = async (newUser, userType) => {
   try {
     const emailSettings = await EmailSetting.findOne();
@@ -23,7 +23,7 @@ const notifySuperAdmin = async (newUser, userType) => {
       return;
     }
 
-    // Find all super-admins
+  
     const superAdmins = await User.find({ role: "super-admin" });
     if (superAdmins.length === 0) {
       console.log("No super-admin found to notify");
@@ -40,7 +40,7 @@ const notifySuperAdmin = async (newUser, userType) => {
       },
     });
 
-    // Prepare image attachment
+  
     const imagePath = path.join(
       __dirname,
       "../../../controllers/Email/Artsays.png"
@@ -233,6 +233,13 @@ const createuser = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    const passwordRegex = /^[a-zA-Z0-9]{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ 
+        message: "Password must be at least 6 characters long and contain only letters and digits"
+      });
+    }
+
     const existingUser = await User.findOne({
       $or: [
         ...(email ? [{ email }] : []),
@@ -269,7 +276,7 @@ const createuser = async (req, res) => {
 
     await newUser.save();
 
-    // Create business profile or artist details if needed
+ 
     if (userType === "Seller") {
       const newBusinessProfile = new BusinessProfile({
         userId: newUser._id,
@@ -288,7 +295,7 @@ const createuser = async (req, res) => {
 
     await newUser.save();
 
-    // Notify super-admins about the new registration
+    
     try {
       await notifySuperAdmin(newUser, userType);
     } catch (notificationError) {
@@ -316,7 +323,7 @@ const createuser = async (req, res) => {
         await transporter.verify();
         console.log("SMTP server is ready to send messages");
 
-        // Get appropriate template
+
         let template;
         switch (userType.toLowerCase()) {
           case "artist":
@@ -353,7 +360,7 @@ const createuser = async (req, res) => {
           .replace("{password}", password)
           .replace("{app_name}", "Artsays");
 
-        // Prepare image attachment
+      
         const imagePath = path.join(
           __dirname,
           "../../../controllers/Email/Artsays.png"

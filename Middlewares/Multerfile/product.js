@@ -9,14 +9,12 @@ const uploadConfig = {
   coa: "./uploads/coa"
 };
 
-// Create directories if they don't exist
 Object.values(uploadConfig).forEach(dir => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Determine the destination based on field name
     let destination;
     if (file.fieldname === 'images') destination = uploadConfig.productImage;
     else if (file.fieldname === 'certificateFile') destination = uploadConfig.certificates;
@@ -44,7 +42,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, 
   fileFilter,
 }).fields([
   { name: "images", maxCount: 8 },

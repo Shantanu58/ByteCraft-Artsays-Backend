@@ -15,7 +15,7 @@ const getBiddedProducts = async (req, res) => {
                     },
                     {
                         path: 'product',
-                        model: 'Crop',
+                        model: 'Product',
                         select: 'productName price category description mainImage otherImages'
                     }
                 ]

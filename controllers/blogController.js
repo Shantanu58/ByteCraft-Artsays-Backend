@@ -1,0 +1,744 @@
+const BlogPost = require("../Models/blogpostModel");
+const validateBlogPost = require("../Validators/Blog/Blog");
+const User = require("../Models/usermode");
+const multer = require("multer");
+const path = require("path");
+const Joi = require("joi");
+const mongoose = require("mongoose");
+const nodemailer = require("nodemailer");
+const EmailSetting = require("../Models/EmailSetting");
+const fs = require("fs");
+
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png/;
+    const extName = fileTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimeType = fileTypes.test(file.mimetype);
+
+    if (extName && mimeType) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files (jpeg, jpg, png) are allowed"));
+    }
+  },
+});
+
+// const validateBlogPost = (data) => {
+//   const schema = Joi.object({
+//     blogName: Joi.string().required(),
+//     blogAuthor: Joi.string().required(),
+//     blogDescription: Joi.string().required(),
+//     category: Joi.string().required(),
+//   });
+//   return schema.validate(data);
+// };
+
+const sendBlogCreationEmail = async (
+  userEmail,
+  userName,
+  blogTitle,
+  blogStatus
+) => {
+  try {
+    const emailSettings = await EmailSetting.findOne();
+    if (!emailSettings) {
+      console.log("No email settings found in database");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: emailSettings.mailHost,
+      port: emailSettings.mailPort,
+      secure: emailSettings.mailEncryption === "SSL",
+      auth: {
+        user: emailSettings.mailUsername,
+        pass: emailSettings.mailPassword,
+      },
+    });
+
+    await transporter.verify();
+    console.log("SMTP server is ready to send messages");
+
+    // Prepare image attachment
+    const imagePath = path.join(__dirname, "../controllers/Email/Artsays.png");
+    let attachments = [];
+
+    try {
+      if (fs.existsSync(imagePath)) {
+        attachments.push({
+          filename: "artsays-logo.png",
+          path: imagePath,
+          cid: "artsays_logo",
+        });
+      } else {
+        console.warn("Logo image not found at:", imagePath);
+      }
+    } catch (err) {
+      console.error("Error checking image:", err);
+    }
+
+    const mailOptions = {
+      from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
+      to: userEmail,
+      subject: `Your Blog "${blogTitle}" Has Been Created - Status: ${blogStatus}`,
+      html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        @media only screen and (max-width: 600px) {
+          .outer-container { padding: 0px 0 !important; }
+          .email-container { border-radius: 0 !important; }
+          .content { padding: 20px !important; }
+          .blog-info-item { flex-direction: column !important; }
+          .blog-info-label { margin-bottom: 5px !important; }
+        }
+      </style>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f2f2f2;">
+      <div class="outer-container" style="padding: 80px 0; background-color: #f2f2f2; width: 100%;">
+        <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div class="header" style="background: linear-gradient(135deg, rgb(204, 151, 121) 0%, rgb(204, 151, 121) 100%); padding: 30px 20px; text-align: center; color: white;">
+            <div class="logo-container" style="margin-bottom: 20px;">
+              ${
+                attachments.length > 0
+                  ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
+                  : ""
+              }
+            </div>
+            <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">Blog Created Successfully</h1>
+          </div>
+    
+          <!-- Content -->
+          <div class="content" style="padding: 30px;">
+            <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${userName},</p>
+            
+            <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">Thank you for creating a new blog post on Artsays. Your blog has been successfully submitted!</p>
+            
+            <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">Here are the details of your blog post:</p>
+            
+            <!-- Blog Info Box -->
+            <div style="background: rgb(244, 236, 233); border-left: 4px solid rgb(173, 100, 73); padding: 20px; margin: 25px 0; border-radius: 4px;">
+              <div style="margin-bottom: 12px; display: flex;">
+                <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Blog Title:</span>
+                <span style="color: #4a5568;">${blogTitle}</span>
+              </div>
+              <div style="margin-bottom: 12px; display: flex;">
+                <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Status:</span>
+                <span style="color: #4a5568;">
+                  <span style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 14px; ${
+                    blogStatus === "Approved"
+                      ? "background-color: #48bb78; color: white;"
+                      : blogStatus === "Pending"
+                      ? "background-color: #ed8936; color: white;"
+                      : "background-color: #f56565; color: white;"
+                  }">
+                    ${blogStatus}
+                  </span>
+                </span>
+              </div>
+              <div style="margin-bottom: 12px; display: flex;">
+                <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Submitted On:</span>
+                <span style="color: #4a5568;">
+                  ${new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            </div>
+            
+            <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
+              ${
+                blogStatus === "Approved"
+                  ? "Your blog has been approved and is now live on our platform!"
+                  : blogStatus === "Pending"
+                  ? "Your blog is under review by our team. You will be notified once it is approved."
+                  : "Your blog has been rejected. Please check the guidelines and submit again."
+              }
+            </p>
+            
+            <!-- Action Button -->
+            <div style="text-align: center;">
+              <a href="http://localhost:3000/login" style="display: inline-block; background: rgb(173, 100, 73); color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 20px 0; text-align: center;">
+                View Your Blogs
+              </a>
+            </div>
+            
+            <!-- Support Section -->
+            <div style="margin-top: 20px; font-size: 15px;">
+              <p>If you have any questions about your blog submission, please contact our support team.</p>
+            </div>
+            
+            <!-- Signature -->
+            <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+              <p>Best regards,</p>
+              <p><strong>The Artsays Team</strong></p>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+         <div style="text-align: center; padding: 20px; background:rgb(244, 236, 233); font-size: 14px; color: #718096;">
+                          <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+                      </div>
+        </div>
+      </div>
+    </body>
+    </html>
+      `,
+      attachments: attachments,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Blog creation email sent to ${userEmail}`);
+  } catch (emailError) {
+    console.error("Failed to send blog creation email:", {
+      error: emailError.message,
+      stack: emailError.stack,
+    });
+  }
+};
+
+const createBlogPost = async (req, res) => {
+  try {
+    const { error } = validateBlogPost(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+
+    const { blogName, slug, summary, blogDescription, category, tags } =
+      req.body;
+
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const existingSlug = await BlogPost.findOne({ slug });
+    if (existingSlug) {
+      return res.status(400).json({
+        success: false,
+        message: "Slug already exists, please choose a different one",
+      });
+    }
+
+    const newBlogPost = new BlogPost({
+      blogName,
+      slug,
+      summary,
+      blogAuthor: user.name || user.username,
+      blogDescription,
+      category,
+      tags: tags ? tags.split(",") : [],
+      blogImage: req.file ? req.file.path : null,
+      uploadedBy: {
+        id: userId,
+        name: user.name || user.username,
+      },
+    });
+
+    await newBlogPost.save();
+
+    // Send email notification if user has email
+    if (user.email) {
+      await sendBlogCreationEmail(
+        user.email,
+        user.name || user.username,
+        newBlogPost.blogName,
+        newBlogPost.blogStatus
+      );
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Blog post created successfully",
+      data: newBlogPost,
+    });
+  } catch (error) {
+    console.error("Error creating blog post:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating blog post",
+      error: error.message,
+    });
+  }
+};
+
+// Delete a blog post
+const deleteBlogPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedBlogPost = await BlogPost.findByIdAndDelete(id);
+
+    if (!deletedBlogPost) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    res.status(200).json({ message: "Blog post deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting blog post", error: error.message });
+  }
+};
+
+const getUserBlogs = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const userBlogs = await BlogPost.find({ "uploadedBy.id": userId })
+      .skip((page - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+
+    if (!userBlogs || userBlogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No blog posts found for this user" });
+    }
+
+    res.status(200).json({ blogs: userBlogs });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving blog posts",
+      error: error.message,
+    });
+  }
+};
+;
+
+// Update a blog post
+const updateBlogPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { blogName, slug, summary, category, tags, blogDescription } =
+      req.body;
+
+    const blogImage = req.file ? req.file.path : null;
+    const userId = req.user.userId;
+
+    const blogPost = await BlogPost.findById(id);
+
+    if (!blogPost) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    blogPost.blogName = blogName || blogPost.blogName;
+    blogPost.slug = slug || blogPost.slug;
+    blogPost.summary = summary || blogPost.summary;
+    blogPost.category = category || blogPost.category;
+    blogPost.blogDescription = blogDescription || blogPost.blogDescription;
+
+    if (tags) {
+      blogPost.tags = typeof tags === "string" ? tags.split(",") : tags;
+    }
+
+    if (blogImage) {
+      blogPost.blogImage = blogImage;
+    }
+
+    await blogPost.save();
+
+    res.status(200).json({
+      message: "Blog post updated successfully",
+      blog: blogPost,
+    });
+  } catch (error) {
+    console.error("Error updating blog post:", error);
+    res.status(500).json({
+      message: "Error updating blog post",
+      error: error.message,
+    });
+  }
+};
+
+// Get all blogs with pagination
+const getAllBlogs = async (req, res) => {
+  try {
+    const allBlogs = await BlogPost.find();
+
+    if (!allBlogs || allBlogs.length === 0) {
+      return res.status(404).json({ message: "No blog posts found" });
+    }
+
+    res.status(200).json({ blogs: allBlogs });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving blog posts", error: error.message });
+  }
+};
+
+const getAllBlogsstatusAprroved = async (req, res) => {
+  try {
+    const approvedBlogs = await BlogPost.find({ blogStatus: "Approved" });
+
+    if (!approvedBlogs || approvedBlogs.length === 0) {
+      return res.status(404).json({ message: "No approved blog posts found" });
+    }
+
+    res.status(200).json({ blogs: approvedBlogs });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error retrieving approved blog posts",
+        error: error.message,
+      });
+  }
+};
+//Update Blog Status by id
+
+const sendBlogStatusUpdateEmail = async (
+  userEmail,
+  userName,
+  blogTitle,
+  blogStatus,
+  adminComments
+) => {
+  try {
+    const emailSettings = await EmailSetting.findOne();
+    if (!emailSettings) {
+      console.log("No email settings found in database");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: emailSettings.mailHost,
+      port: emailSettings.mailPort,
+      secure: emailSettings.mailEncryption === "SSL",
+      auth: {
+        user: emailSettings.mailUsername,
+        pass: emailSettings.mailPassword,
+      },
+    });
+
+    await transporter.verify();
+    console.log("SMTP server is ready to send messages");
+
+    // Prepare image attachment
+    const imagePath = path.join(__dirname, "../controllers/Email/Artsays.png");
+    let attachments = [];
+
+    try {
+      if (fs.existsSync(imagePath)) {
+        attachments.push({
+          filename: "artsays-logo.png",
+          path: imagePath,
+          cid: "artsays_logo",
+        });
+      } else {
+        console.warn("Logo image not found at:", imagePath);
+      }
+    } catch (err) {
+      console.error("Error checking image:", err);
+    }
+
+    // Determine status-specific content
+    let statusMessage = "";
+    let buttonText = "View Your Blog";
+    let buttonLink = "http://localhost:3000/login";
+
+    if (blogStatus === "Approved") {
+      statusMessage =
+        "Congratulations! Your blog has been approved and is now live on our platform.";
+      buttonText = "View Your Published Blog";
+    } else if (blogStatus === "Pending") {
+      statusMessage =
+        "Your blog is under review by our team. We appreciate your patience.";
+      buttonText = "View Your Blog Draft";
+    } else if (blogStatus === "Rejected") {
+      statusMessage =
+        "Your blog submission requires some changes. Please review your blog.";
+      buttonText = "Edit and Resubmit Your Blog";
+      buttonLink = "http://localhost:3000/login"; // Update with your edit blog URL
+    }
+
+    const mailOptions = {
+      from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
+      to: userEmail,
+      subject: `Your Blog "${blogTitle}" Status Has Been Updated to ${blogStatus}`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @media only screen and (max-width: 600px) {
+      .outer-container { padding: 0px 0 !important; }
+      .email-container { border-radius: 0 !important; }
+      .content { padding: 20px !important; }
+      .blog-info-item { flex-direction: column !important; }
+      .blog-info-label { margin-bottom: 5px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f2f2f2;">
+  <div class="outer-container" style="padding: 80px 0; background-color: #f2f2f2; width: 100%;">
+    <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+      <!-- Header -->
+      <div class="header" style="background: linear-gradient(135deg, rgb(204, 151, 121) 0%, rgb(204, 151, 121) 100%); padding: 30px 20px; text-align: center; color: white;">
+        <div class="logo-container" style="margin-bottom: 20px;">
+          ${
+            attachments.length > 0
+              ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
+              : ""
+          }
+        </div>
+        <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">Blog Status Updated</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content" style="padding: 30px;">
+        <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${userName},</p>
+        
+        <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">The status of your blog post on Artsays has been updated by our admin team.</p>
+        
+        <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">Here are the updated details:</p>
+        
+        <!-- Blog Info Box -->
+        <div style="background: rgb(244, 236, 233); border-left: 4px solid rgb(173, 100, 73); padding: 20px; margin: 25px 0; border-radius: 4px;">
+          <div style="margin-bottom: 12px; display: flex;">
+            <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Blog Title:</span>
+            <span style="color: #4a5568;">${blogTitle}</span>
+          </div>
+          <div style="margin-bottom: 12px; display: flex;">
+            <span style="font-weight: 600; min-width: 120px; color: #2d3748;">New Status:</span>
+            <span style="color: #4a5568;">
+              <span style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 14px; ${
+                blogStatus === "Approved"
+                  ? "background-color: #48bb78; color: white;"
+                  : blogStatus === "Pending"
+                  ? "background-color: #ed8936; color: white;"
+                  : "background-color: #f56565; color: white;"
+              }">
+                ${blogStatus}
+              </span>
+            </span>
+          </div>
+          <div style="margin-bottom: 12px; display: flex;">
+            <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Updated On:</span>
+            <span style="color: #4a5568;">
+              ${new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        </div>
+        
+        <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">${statusMessage}</p>
+        
+        <!-- Action Button -->
+        <div style="text-align: center;">
+          <a href="${buttonLink}" style="display: inline-block; background: rgb(173, 100, 73); color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 20px 0; text-align: center;">
+            ${buttonText}
+          </a>
+        </div>
+        
+        <!-- Support Section -->
+        <div style="margin-top: 20px; font-size: 15px;">
+          <p>If you have any questions about this status update, please contact our support team.</p>
+        </div>
+        
+        <!-- Signature -->
+        <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+          <p>Best regards,</p>
+          <p><strong>The Artsays Team</strong></p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="text-align: center; padding: 20px; background:rgb(244, 236, 233); font-size: 14px; color: #718096;">
+                          <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+                      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `,
+      attachments: attachments,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Blog status update email sent to ${userEmail}`);
+  } catch (emailError) {
+    console.error("Failed to send blog status update email:", {
+      error: emailError.message,
+      stack: emailError.stack,
+    });
+  }
+};
+
+const updateBlogStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid blog post ID" });
+    }
+
+    const { blogStatus, adminComments } = req.body;
+    const validStatuses = ["Approved", "Rejected", "Pending"];
+    if (!validStatuses.includes(blogStatus)) {
+      return res.status(400).json({ message: "Invalid blog status" });
+    }
+
+    const blogPost = await BlogPost.findById(id).populate("uploadedBy.id");
+
+    if (!blogPost) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    // Save the previous status for comparison
+    const previousStatus = blogPost.blogStatus;
+    blogPost.blogStatus = blogStatus;
+    await blogPost.save();
+
+    // Send email notification if status changed and user has email
+    if (previousStatus !== blogStatus && blogPost.uploadedBy.id.email) {
+      await sendBlogStatusUpdateEmail(
+        blogPost.uploadedBy.id.email,
+        blogPost.uploadedBy.name || blogPost.uploadedBy.id.username,
+        blogPost.blogName,
+        blogPost.blogStatus,
+        adminComments
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Blog status updated successfully",
+      blog: blogPost,
+    });
+  } catch (error) {
+    console.error("Error updating blog status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating blog status",
+      error: error.message,
+    });
+  }
+};
+
+const fetchBlogById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid Blog ID format" });
+    }
+
+    const blog = await BlogPost.findById(id).populate(
+      "uploadedBy.id",
+      "name email lastName profilePhoto bio"
+    );
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    res.status(200).json({ message: "Blog post retrieved successfully", blog });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving blog post", error: error.message });
+  }
+};
+
+const getBlogsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    const userBlogs = await BlogPost.find({ "uploadedBy.id": userId });
+
+    if (!userBlogs || userBlogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No blog posts found for this user" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Blogs retrieved successfully", blogs: userBlogs });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving blogs", error: error.message });
+  }
+};
+
+const getBlogsByUserIdandstaus = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    const userBlogs = await BlogPost.find({
+      "uploadedBy.id": userId,
+      blogStatus: "Approved",
+    });
+
+    if (!userBlogs || userBlogs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No approved blog posts found for this user" });
+    }
+
+    res
+      .status(200)
+      .json({
+        message: "Approved blogs retrieved successfully",
+        blogs: userBlogs,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving blogs", error: error.message });
+  }
+};
+
+module.exports = {
+  createBlogPost,
+  upload,
+  deleteBlogPost,
+  getUserBlogs,
+  updateBlogPost,
+  getAllBlogs,
+  updateBlogStatus,
+  fetchBlogById,
+  getBlogsByUserId,
+  getAllBlogsstatusAprroved,
+  getBlogsByUserIdandstaus,
+};

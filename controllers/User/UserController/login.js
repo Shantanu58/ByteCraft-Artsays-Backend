@@ -58,6 +58,7 @@ const loginUser = async (req, res) => {
         userType: user.userType,
         email: user.email,
         phone: user.phone,
+        userId: user._id,
       });
     } catch (error) {
       console.error("Error during login:", error);

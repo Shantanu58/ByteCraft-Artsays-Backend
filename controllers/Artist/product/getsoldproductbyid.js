@@ -13,7 +13,7 @@ const getTotalQuantityPurchased = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "crops",
+                    from: "products",
                     localField: "_id",
                     foreignField: "_id",
                     as: "productDetails"
@@ -46,9 +46,11 @@ const getTotalQuantityPurchased = async (req, res) => {
                     userId: "$userDetails._id",
                     artistName: { $concat: ["$userDetails.name", " ", "$userDetails.lastName"] },
                     productName: "$productDetails.productName",
-                    productPrice: "$productDetails.price",
+                    productPrice: "$productDetails.finalPrice",
                     product: "$productDetails.mainImage",
-                    totalQuantity: 1
+                    quantity: '$quantity',
+                    paymentMethod: '$paymentMethod', // ✅ ADDED
+                    purchaseDate: '$purchaseDate', 
                 }
             }
         ]);

@@ -14,7 +14,7 @@ const getTotalQuantityPurchasedByUser = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "crops",
+                    from: "products",
                     localField: "_id",
                     foreignField: "_id",
                     as: "productDetails"
@@ -45,7 +45,10 @@ const getTotalQuantityPurchasedByUser = async (req, res) => {
                     productName: "$productDetails.productName",
                     productPrice: "$productDetails.price",
                     product: "$productDetails.mainImage",
-                    totalQuantity: 1
+                    totalQuantity: 1,
+                    paymentMethod: '$paymentMethod', // ✅ ADDED
+                    purchaseDate: '$purchaseDate', 
+
                 }
             }
         ]);

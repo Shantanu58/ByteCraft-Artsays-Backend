@@ -8,7 +8,7 @@ const {
 const router = express.Router();
 
 router.get('/get-alltransaction', getalltransaction);
-router.get('/get-alltransactionbyartistid/:artistId', getalltransactionbyartistid);
+router.get('/get-alltransactionbyartistid/:userId', getalltransactionbyartistid);
 router.get('/get-alltransactionbysellerid/:sellerId',getalltransactionbysellerid);
 
 module.exports = router;

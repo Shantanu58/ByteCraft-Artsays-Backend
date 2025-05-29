@@ -3,13 +3,17 @@ const User = require('../../../Models/usermode');
 
 const getPurchaseDetails = async (req, res) => {
     try {
-        const { artistId } = req.params;
+        const { userId } = req.params;
+
+        if (!userId || userId === 'undefined') {
+            return res.status(400).json({ message: 'userId is required and cannot be undefined' }); 
+        }
 
         const purchases = await Purchase.find()
             .populate('buyer', 'name lastName email phone')
             .populate({
                 path: 'product',
-                match: { userId: artistId },
+                match: { userId: userId },
                 select: 'productName price category description mainImage otherImages userId',
                 populate: {
                     path: 'userId',

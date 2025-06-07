@@ -20,7 +20,7 @@ const {
 router.put("/updateproductstatus/:id", authMiddleware,updateproductstatus);
 router.delete("/deleteproduct/:id", authMiddleware,deleteproduct);
 router.get("/getproduct/:id",fetchbyid);
-router.get("/getstatusapprovedproduct", authMiddleware,statusapprovedproduct);
+router.get("/getstatusapprovedproduct",statusapprovedproduct);
 router.get("/getproductbyartist/:userId",getProductbyartistid);
 router.get("/gettransactionartist",gettranscation);
 router.get("/getpackagingmaterialproductartist",packageingmaterialproduct);

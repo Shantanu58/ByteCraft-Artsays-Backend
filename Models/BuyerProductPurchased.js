@@ -9,7 +9,7 @@ const purchaseSchema = new mongoose.Schema(
     },
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Crop',
+      ref: 'product',
     },
     resellProduct: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +20,7 @@ const purchaseSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
-    totalPrice: {
+    finalPrice: {
       type: Number,
       required: true,
     },

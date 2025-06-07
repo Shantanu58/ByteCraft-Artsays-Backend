@@ -1,11 +1,9 @@
 const bcrypt = require("bcrypt");
-// const redisClient = require('../config/redis');
 const jwt = require("jsonwebtoken");
 const User = require("../../../Models/usermode");
 
 const loginUser = async (req, res) => {
     try {
-      console.log("Request Body:", req.body); // Debugging line
       const { emailOrPhone, password } = req.body;
   
       if (!emailOrPhone || !password) {
@@ -58,6 +56,7 @@ const loginUser = async (req, res) => {
         userType: user.userType,
         email: user.email,
         phone: user.phone,
+        userId:user._id
       });
     } catch (error) {
       console.error("Error during login:", error);

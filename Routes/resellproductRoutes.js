@@ -11,6 +11,6 @@ const {
  } = require("../controllers/Resellproduct/index");
 
  router.get("/getallresellproduct/:buyerId",authMiddleware,getallresellproductbybuyerid);
- router.get("/getallpurchasedproduct/:buyerId",authMiddleware,getpurchasedproductbyid);
+ router.get("/getallpurchasedproduct/:buyerId",getpurchasedproductbyid);
  router.get("/getallresellproducttransaction/:buyerId",authMiddleware,getbuyertransaction);
 module.exports = router;

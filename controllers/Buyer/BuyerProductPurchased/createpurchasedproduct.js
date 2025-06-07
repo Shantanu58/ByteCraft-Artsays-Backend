@@ -39,37 +39,52 @@ const createPurchase = async (req, res) => {
   try {
     const { buyer, product, resellProduct, quantity, paymentMethod } = req.body;
 
-    let productData;
-    let totalPrice;
-
   
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({ message: 'Quantity must be a positive integer' });
+    }
+
+    let productData;
+    let finalPrice;
+
     if (product && resellProduct) {
-      return res.status(400).json({ message: 'Choose either product (Crop) or resellProduct, not both.' });
+      return res.status(400).json({ message: 'Choose either product or resellProduct, not both.' });
     }
 
     if (product) {
       productData = await Crop.findById(product);
       if (!productData) {
-        return res.status(404).json({ message: 'Original product (Crop) not found' });
+        return res.status(404).json({ message: 'Original product not found' });
       }
+      
+      if (!productData.finalPrice && !productData.sellingPrice) {
+        return res.status(400).json({ message: 'Product price is not defined' });
+      }
+      finalPrice = (productData.finalPrice || productData.sellingPrice) * quantity;
     } else if (resellProduct) {
       productData = await BuyerResellProduct.findById(resellProduct);
       if (!productData) {
         return res.status(404).json({ message: 'Resell product not found' });
       }
+      if (!productData.price) {
+        return res.status(400).json({ message: 'Resell product price is not defined' });
+      }
+      finalPrice = productData.price * quantity;
     } else {
       return res.status(400).json({ message: 'Provide either product or resellProduct.' });
     }
 
-    totalPrice = productData.price * quantity;
-
+  
+    if (isNaN(finalPrice) || finalPrice < 0) {
+      return res.status(400).json({ message: 'Invalid final price calculated' });
+    }
 
     const newPurchase = new Purchase({
       buyer,
       product: product || null,
       resellProduct: resellProduct || null,
       quantity,
-      totalPrice,
+      finalPrice,
       paymentMethod,
     });
 

@@ -43,11 +43,11 @@ const loginUser = async (req, res) => {
           .status(401)
           .json({ message: "Incorrect password. Please try again." });
       }
-  
+   console.log("JWT_EXPIRATION from .env:", process.env.JWT_EXPIRATION);
       const token = jwt.sign(
         { userId: user._id, role: user.role, userType: user.userType },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: process.env.JWT_EXPIRATION  }
       );
   
       res.status(200).json({
@@ -56,7 +56,8 @@ const loginUser = async (req, res) => {
         userType: user.userType,
         email: user.email,
         phone: user.phone,
-        userId:user._id
+        userId:user._id,
+        status:user.status
       });
     } catch (error) {
       console.error("Error during login:", error);

@@ -56,7 +56,7 @@ const BuyerRequestSchema = new mongoose.Schema(
     Comments: { type: String },
     RequestStatus: {
       type: String,
-      enum: ['Approved', 'Rejected', 'Pending', 'Negotiating'],
+      enum: ['Approved', 'Rejected', 'Pending'],
       default: 'Pending',
     },
     BuyerStatus: {

@@ -9,6 +9,8 @@ const {
    loginUser,
    showWelcomeMessage,
    updateUserProfile,
+   sendOTP,
+   verifyOTP
 } = require('../controllers/User/index');
 const { uploadMiddleware } = require('../Middlewares/uploadMiddleware'); 
 const router = express.Router();
@@ -22,6 +24,8 @@ router.get('/user-by-email/:email', getUserByEmail);
 router.put('/user/:id', verifyJWT, uploadMiddleware, updateUserProfile); 
 router.put('/user/:id/change-password',verifyJWT, changePassword);
 router.post('/createuser', createUser);
+router.post("/send-otp", sendOTP);
+router.post("/verify-otp", verifyOTP);
 
 
 module.exports = router;

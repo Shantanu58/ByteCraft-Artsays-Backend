@@ -6,6 +6,8 @@ const getUserbypassword = require("./UserController/getUserByPassword")
 const loginUser = require("./UserController/login")
 const showWelcomeMessage = require("./UserController/showWelcomeMessage")
 const updateUserProfile = require("./UserController/updateUserProfile")
+const { sendOTP, otpStore }   =require("./UserController/sendOTP");
+const verifyOTP =require("./UserController/verifyOTP");
 
 module.exports = {
   changePassword,
@@ -16,4 +18,6 @@ module.exports = {
   loginUser,
   showWelcomeMessage,
   updateUserProfile,
+  sendOTP,
+  verifyOTP
 };

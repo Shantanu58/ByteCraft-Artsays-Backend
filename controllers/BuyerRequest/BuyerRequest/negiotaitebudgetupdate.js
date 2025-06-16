@@ -42,7 +42,7 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             NegotiatedBudget,
             Notes,
             updateCount: newUpdateCount,
-            RequestStatus: 'Negotiating'
+            RequestStatus: 'Approved'
         };
 
         const updatedRequest = await BuyerRequest.findByIdAndUpdate(

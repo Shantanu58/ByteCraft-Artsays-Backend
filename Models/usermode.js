@@ -97,7 +97,8 @@ const userSchema = new mongoose.Schema({
     default: {},
   },
  
-  status: { type: String, enum: ['Verified', 'Unverified'], default: 'Unverified' },
+  status: { type: String, enum: ['Verified', 'Unverified','Rejected'], default: 'Unverified' },
+  Rejcectcomment:{type:String}
 });
 
 const User = mongoose.model('User', userSchema);

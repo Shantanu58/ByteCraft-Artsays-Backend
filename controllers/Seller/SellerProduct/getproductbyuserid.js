@@ -1,7 +1,7 @@
 const Crop = require('../../../Models/CropImage');
 const User = require('../../../Models/usermode');
 
-const getproductbyuserid  = async (req, res) => {
+const getCropsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -30,4 +30,4 @@ const getproductbyuserid  = async (req, res) => {
   }
 };
 
-module.exports = getproductbyuserid ;
+module.exports = getCropsByUser;

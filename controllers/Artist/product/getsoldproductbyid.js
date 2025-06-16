@@ -48,9 +48,7 @@ const getTotalQuantityPurchased = async (req, res) => {
                     productName: "$productDetails.productName",
                     productPrice: "$productDetails.finalPrice",
                     product: "$productDetails.mainImage",
-                    quantity: '$quantity',
-                    paymentMethod: '$paymentMethod', // ✅ ADDED
-                    purchaseDate: '$purchaseDate', 
+                    totalQuantity: 1
                 }
             }
         ]);

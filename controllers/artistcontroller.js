@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose=require('mongoose')
 
 const router = express.Router();
-const User = require('../Models/usermode'); // Adjust the path as necessary
+const User = require('../Models/usermode'); 
 const Product = require('../Models/Product');
 
   const artists= async (req, res) => {

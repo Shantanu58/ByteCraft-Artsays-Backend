@@ -18,6 +18,7 @@ const BlogPostSchema = new mongoose.Schema({
     enum: ['Approved', 'Rejected', 'Pending'],
     default: 'Pending',
   },
+  Rejcectcomment: { type: String },
   blogId: { type: String, unique: true },
   views: { type: Number, default: 0 },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -26,6 +27,7 @@ const BlogPostSchema = new mongoose.Schema({
     text: String,
     createdAt: { type: Date, default: Date.now }
   }]
+
 }, { timestamps: true });
 
 

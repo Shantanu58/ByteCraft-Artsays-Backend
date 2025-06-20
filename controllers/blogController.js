@@ -621,6 +621,10 @@ const updateBlogStatus = async (req, res) => {
     // Save the previous status for comparison
     const previousStatus = blogPost.blogStatus;
     blogPost.blogStatus = blogStatus;
+    if (blogStatus === "Rejected" && adminComments) {
+      blogPost.Rejcectcomment = adminComments;
+    }
+
     await blogPost.save();
 
     // Send email notification if status changed and user has email

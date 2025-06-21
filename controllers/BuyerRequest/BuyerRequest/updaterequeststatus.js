@@ -1,0 +1,233 @@
+
+// const BuyerRequest = require("../../../Models/Buyercustomrequest");
+
+// const updateRequestStatusByRequestId = async (req, res) => {
+//     try {
+//         const requestId = req.params.requestId; 
+//         const { requestStatus } = req.body; 
+
+//         if (!['Approved', 'Rejected', 'Pending'].includes(requestStatus)) {
+//             return res.status(400).json({
+//                 message: "Invalid request status. Valid options are 'Approved', 'Rejected', or 'Pending'.",
+//             });
+//         }
+
+//         const updatedRequest = await BuyerRequest.findByIdAndUpdate(
+//             requestId,
+//             { $set: { RequestStatus: requestStatus } }, 
+//             { new: true } 
+//         );
+
+//         if (!updatedRequest) {
+//             return res.status(404).json({
+//                 message: "No buyer request found with the provided request ID.",
+//             });
+//         }
+
+//         res.status(200).json({
+//             message: "Request status updated successfully",
+//             updatedRequest,
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Error updating the request status",
+//             error: error.message,
+//         });
+//     }
+// };
+
+// module.exports = updateRequestStatusByRequestId;
+
+
+
+const BuyerRequest = require("../../../Models/Buyercustomrequest");
+const User = require("../../../Models/usermode");
+const nodemailer = require("nodemailer");
+const EmailSetting = require("../../../Models/EmailSetting");
+const path = require("path");
+const fs = require("fs");
+
+const updateRequestStatusByRequestId = async (req, res) => {
+    try {
+        const requestId = req.params.requestId; 
+        const { requestStatus } = req.body; 
+
+        if (!['Approved', 'Rejected', 'Pending'].includes(requestStatus)) {
+            return res.status(400).json({
+                message: "Invalid request status. Valid options are 'Approved', 'Rejected', or 'Pending'.",
+            });
+        }
+
+        // Update the request and populate the Buyer.id reference
+        const updatedRequest = await BuyerRequest.findByIdAndUpdate(
+            requestId,
+            { $set: { RequestStatus: requestStatus } },
+            { new: true }
+        ).populate({
+            path: 'Buyer.id',  // Correct path to populate
+            select: 'name email',
+            model: 'User'
+        });
+
+        if (!updatedRequest) {
+            return res.status(404).json({
+                message: "No buyer request found with the provided request ID.",
+            });
+        }
+
+        // Send email notification if status changed to Approved or Rejected
+        if (['Approved', 'Rejected'].includes(requestStatus) && 
+            updatedRequest.Buyer && updatedRequest.Buyer.id && updatedRequest.Buyer.id.email) {
+            
+            try {
+                const emailSettings = await EmailSetting.findOne();
+                if (!emailSettings) {
+                    console.log("No email settings found in database");
+                } else {
+                    const transporter = nodemailer.createTransport({
+                        host: emailSettings.mailHost,
+                        port: emailSettings.mailPort,
+                        secure: emailSettings.mailEncryption === "SSL",
+                        auth: {
+                            user: emailSettings.mailUsername,
+                            pass: emailSettings.mailPassword,
+                        },
+                    });
+
+                    // Prepare image attachment
+                    const imagePath = path.join(__dirname, "../../../controllers/Email/Artsays.png");
+                    let attachments = [];
+
+                    if (fs.existsSync(imagePath)) {
+                        attachments.push({
+                            filename: "artsays-logo.png",
+                            path: imagePath,
+                            cid: "artsays_logo",
+                        });
+                    }
+
+                    const buyerName = updatedRequest.Buyer.id.name || updatedRequest.Buyer.name || 'Customer';
+                    const buyerEmail = updatedRequest.Buyer.id.email || updatedRequest.Buyer.email;
+
+                    const statusMessage = requestStatus === 'Approved' 
+                        ? "Your custom product request has been approved! Our team will now start working on your order." 
+                        : "Your custom product request has been rejected. Please review the requirements and submit a new request if needed.";
+
+                    const mailOptions = {
+                        from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
+                        to: buyerEmail,
+                        subject: `Your Custom Product Request Has Been ${requestStatus}`,
+                        html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @media only screen and (max-width: 600px) {
+            .outer-container { padding: 0px 0 !important; }
+            .email-container { border-radius: 0 !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #F8F1EE;">
+    <div class="outer-container" style="padding: 80px 0; background-color: #F8F1EE; width: 100%;">
+        <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+            <div style="background: #AD6449; padding: 30px 20px; text-align: center; color: white;">
+                <div style="margin-bottom: 20px;">
+                    ${attachments.length > 0
+                        ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
+                        : ""}
+                </div>
+                <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: white;">Request ${requestStatus}</h1>
+            </div>
+            
+            <div style="padding: 30px;">
+                <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${buyerName},</p>
+                
+                <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
+                    ${statusMessage}
+                </p>
+                
+                <div style="background: #F4ECE9; border-left: 4px solid #AD6449; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                    <div style="margin-bottom: 12px; display: flex;">
+                        <span style="font-weight: 600; min-width: 150px; color: #2d3748;">Product:</span>
+                        <span>${updatedRequest.ProductName}</span>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex;">
+                        <span style="font-weight: 600; min-width: 150px; color: #2d3748;">Art Type:</span>
+                        <span>${updatedRequest.ArtType}</span>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex;">
+                        <span style="font-weight: 600; min-width: 150px; color: #2d3748;">Status:</span>
+                        <span style="color: ${requestStatus === 'Approved' ? '#28a745' : '#dc3545'}; font-weight: 600;">
+                            ${requestStatus}
+                        </span>
+                    </div>
+                    ${requestStatus === 'Rejected' && updatedRequest.rejectedcomment ? `
+                    <div style="margin-bottom: 12px; display: flex;">
+                        <span style="font-weight: 600; min-width: 150px; color: #2d3748;">Reason:</span>
+                        <span>${updatedRequest.rejectedcomment}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                ${requestStatus === 'Rejected' ? `
+                <div style="background-color: #FFF3E0; border-left: 4px solid #FFA000; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #E65100; font-weight: bold;">Next Steps</p>
+                    <p style="margin: 10px 0 0 0; color: #E65100;">
+                        Please review your request details and requirements. You may submit a new request 
+                        with additional information or contact our support team for clarification.
+                    </p>
+                </div>
+                ` : ''}
+                
+                <div style="text-align: center;">
+                    <a href="http://localhost:3000/dashboard" style="display: inline-block; background: #AD6449; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 20px 0; text-align: center;">
+                        ${requestStatus === 'Approved' ? 'View Your Orders' : 'Submit New Request'}
+                    </a>
+                </div>
+                
+                <div style="margin-top: 20px; font-size: 15px;">
+                    <p>If you have any questions about this decision, please contact our support team.</p>
+                </div>
+                
+                <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #E2D5D0;">
+                    <p>Best regards,</p>
+                    <p><strong>The Artsays Team</strong></p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; padding: 20px; background: #F4ECE9; font-size: 14px; color: #7A5C50;">
+                <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+                        `,
+                        attachments,
+                    };
+
+                    await transporter.sendMail(mailOptions);
+                    console.log(`Status update email sent to ${buyerEmail}`);
+                }
+            } catch (emailError) {
+                console.error("Failed to send status update email:", emailError);
+            }
+        }
+
+        res.status(200).json({
+            message: "Request status updated successfully",
+            updatedRequest,
+        });
+    } catch (error) {
+        console.error("Error updating request status:", error);
+        res.status(500).json({
+            message: "Error updating the request status",
+            error: error.message,
+        });
+    }
+};
+
+module.exports = updateRequestStatusByRequestId;

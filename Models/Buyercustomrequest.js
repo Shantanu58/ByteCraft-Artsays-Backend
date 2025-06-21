@@ -52,7 +52,7 @@ const BuyerRequestSchema = new mongoose.Schema(
     MinBudget: { type: Number, required: true },
     MaxBudget: { type: Number, required: true },
     PaymentTerm: { type: String, required: true },
-    ExpectedDeadline: { type: Number, required: true }, 
+    ExpectedDeadline: { type: Number, required: true },
     Comments: { type: String },
     RequestStatus: {
       type: String,
@@ -61,15 +61,19 @@ const BuyerRequestSchema = new mongoose.Schema(
     },
     BuyerStatus: {
       type: String,
-      enum: ['Approved', 'Rejected','Pending'],
+      enum: ['Approved', 'Rejected', 'Pending'],
       default: 'Pending',
     },
-    rejectedcomment:{type:String},
-    NegotiatedBudget: { type: Number },
-    Notes:{type: String ,required:false},
+    rejectedcomment: { type: String },
+    NegotiatedBudget: [{
+      amount: { type: Number, required: true },
+      updatedBy: { type: String, enum: ['buyer', 'artist'], required: true }
+    }],
+
+    Notes: { type: String, required: false },
     BuyerNotes: { type: String },
     updateCount: { type: Number, default: 0 },
-    isUpdated: { type: Boolean, default: false },
+    isUpdated: { type: Number, default: 0 },
     Revisions: [{
       description: String,
       date: { type: Date, default: Date.now }

@@ -5,54 +5,6 @@ const EmailSetting = require("../../../Models/EmailSetting");
 const path = require("path");
 const fs = require("fs");
 
-// const updateBuyerRequestByBuyerId = async (req, res) => {
-//     try {
-//         const requestId = req.params.id;
-//         const { ProductName, Description, MaxBudget, MinBudget, NegotiatedBudget, Notes } = req.body;
-
-//         if (!ProductName || !Description || !MaxBudget || !MinBudget || !NegotiatedBudget || !Notes) {
-//             return res.status(400).json({
-//                 message: "ProductName, Description, MaxBudget, MinBudget, NegotiatedBudget, and Notes are required.",
-//             });
-//         }
-
-//         const existingRequest = await BuyerRequest.findById(requestId)
-//             .populate('Buyer.id', 'name email')
-//             .populate('Artist.id', 'name email');
-
-//         if (!existingRequest) {
-//             return res.status(404).json({
-//                 message: "No buyer request found with the provided ID.",
-//             });
-//         }
-
-//         if (existingRequest.updateCount >= 3) {
-//             return res.status(400).json({
-//                 message: "This buyer request has already been updated two times and cannot be updated again.",
-//             });
-//         }
-
-//         const newUpdateCount = existingRequest.updateCount + 1;
-//         const remainingAttempts = 3 - newUpdateCount;
-//         let updateFields = {
-//             ProductName,
-//             Description,
-//             MaxBudget,
-//             MinBudget,
-//             NegotiatedBudget,
-//             Notes,
-//             updateCount: newUpdateCount,
-//             RequestStatus: 'Approved'
-//         };
-
-//         const updatedRequest = await BuyerRequest.findByIdAndUpdate(
-//             requestId,
-//             { $set: updateFields },
-//             { new: true }
-//         ).populate('Buyer.id', 'name email')
-//          .populate('Artist.id', 'name email');
-
-
 const updateBuyerRequestByBuyerId = async (req, res) => {
     try {
         const requestId = req.params.id;
@@ -74,39 +26,32 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             });
         }
 
-        const existingLength = existingRequest.NegotiatedBudget.length;
-
-        if (existingLength >= 3) {
+        if (existingRequest.updateCount >= 3) {
             return res.status(400).json({
-                message: "Maximum 3 negotiated budgets allowed.",
+                message: "This buyer request has already been updated two times and cannot be updated again.",
             });
         }
 
-        if (existingLength % 2 !== 0) {
-            return res.status(403).json({
-                message: "You can only update the budget after buyer's turn.",
-            });
-        }
+        const newUpdateCount = existingRequest.updateCount + 1;
+        const remainingAttempts = 3 - newUpdateCount;
+        let updateFields = {
+            ProductName,
+            Description,
+            MaxBudget,
+            MinBudget,
+            NegotiatedBudget,
+            Notes,
+            updateCount: newUpdateCount,
+            RequestStatus: 'Approved'
+        };
 
-        // Push new negotiated budget
-        existingRequest.NegotiatedBudget.push({
-            amount: NegotiatedBudget,
-            updatedBy: 'artist'
-        });
+        const updatedRequest = await BuyerRequest.findByIdAndUpdate(
+            requestId,
+            { $set: updateFields },
+            { new: true }
+        ).populate('Buyer.id', 'name email')
+         .populate('Artist.id', 'name email');
 
-        existingRequest.ProductName = ProductName;
-        existingRequest.Description = Description;
-        existingRequest.MaxBudget = MaxBudget;
-        existingRequest.MinBudget = MinBudget;
-        existingRequest.Notes = Notes;
-        existingRequest.updateCount = (existingRequest.updateCount || 0) + 1;
-        existingRequest.RequestStatus = 'Approved';
-
-        const remainingAttempts = 3 - existingRequest.updateCount;
-
-        const updatedRequest = await existingRequest.save();
-
-        
         // Send email notifications
         try {
             const emailSettings = await EmailSetting.findOne();
@@ -196,7 +141,7 @@ function generateNegotiationEmail(request, recipientType, attachments, remaining
     const isBuyerEmail = recipientType === 'buyer';
     const isArtistEmail = recipientType === 'artist';
     const isAdminEmail = recipientType === 'admin';
-
+    
     return `
 <!DOCTYPE html>
 <html>
@@ -216,12 +161,12 @@ function generateNegotiationEmail(request, recipientType, attachments, remaining
             <div style="background: #AD6449; padding: 30px 20px; text-align: center; color: white;">
                 <div style="margin-bottom: 20px;">
                     ${attachments.length > 0
-            ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
-            : ""}
+                        ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
+                        : ""}
                 </div>
                 <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: white;">
-                    ${isBuyerEmail ? 'Negotiation Update' :
-            isArtistEmail ? 'Negotiation Submitted' : 'New Negotiation Started'}
+                    ${isBuyerEmail ? 'Negotiation Update' : 
+                      isArtistEmail ? 'Negotiation Submitted' : 'New Negotiation Started'}
                 </h1>
             </div>
             
@@ -231,11 +176,11 @@ function generateNegotiationEmail(request, recipientType, attachments, remaining
                 </p>
                 
                 <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
-                    ${isBuyerEmail
-            ? `${artistName} has sent a negotiation proposal for your custom art request "${request.ProductName}".`
-            : isArtistEmail
-                ? `You have submitted a negotiation proposal for "${request.ProductName}" requested by ${buyerName}.`
-                : `Artist ${artistName} has started negotiation for the request "${request.ProductName}" from ${buyerName}.`}
+                    ${isBuyerEmail 
+                        ? `${artistName} has sent a negotiation proposal for your custom art request "${request.ProductName}".` 
+                        : isArtistEmail
+                            ? `You have submitted a negotiation proposal for "${request.ProductName}" requested by ${buyerName}.`
+                            : `Artist ${artistName} has started negotiation for the request "${request.ProductName}" from ${buyerName}.`}
                 </p>
                 
                 ${isArtistEmail && remainingAttempts === 1 ? `
@@ -275,24 +220,24 @@ function generateNegotiationEmail(request, recipientType, attachments, remaining
                 
                 <div style="background-color: #FFF3E0; border-left: 4px solid #FFA000; padding: 15px; margin: 20px 0;">
                     <p style="margin: 0; color: #E65100; font-weight: bold;">
-                        ${isBuyerEmail ? 'Next Steps' :
-            isArtistEmail ? 'Important' : 'Action Required'}
+                        ${isBuyerEmail ? 'Next Steps' : 
+                          isArtistEmail ? 'Important' : 'Action Required'}
                     </p>
                     <p style="margin: 10px 0 0 0; color: #E65100;">
                         ${isBuyerEmail
-            ? 'Please review the negotiation proposal and respond by accepting or making a counter-offer.'
-            : isArtistEmail
-                ? remainingAttempts === 1
-                    ? 'This is your final negotiation attempt. Please ensure your terms are final.'
-                    : `You have ${remainingAttempts} more negotiation attempt${remainingAttempts !== 1 ? 's' : ''} remaining.`
-                : 'Please monitor this negotiation and ensure both parties reach a fair agreement.'}
+                            ? 'Please review the negotiation proposal and respond by accepting or making a counter-offer.'
+                            : isArtistEmail
+                                ? remainingAttempts === 1 
+                                    ? 'This is your final negotiation attempt. Please ensure your terms are final.'
+                                    : `You have ${remainingAttempts} more negotiation attempt${remainingAttempts !== 1 ? 's' : ''} remaining.`
+                                : 'Please monitor this negotiation and ensure both parties reach a fair agreement.'}
                     </p>
                 </div>
                 
                 <div style="text-align: center;">
                     <a href="http://localhost:3000/login" style="display: inline-block; background: #AD6449; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 20px 0; text-align: center;">
-                        ${isBuyerEmail ? 'Respond to Negotiation' :
-            isArtistEmail ? 'View Request Details' : 'Monitor Negotiation'}
+                        ${isBuyerEmail ? 'Respond to Negotiation' : 
+                          isArtistEmail ? 'View Request Details' : 'Monitor Negotiation'}
                     </a>
                 </div>
                 

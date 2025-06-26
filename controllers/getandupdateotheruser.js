@@ -14,6 +14,8 @@ const fs = require("fs");
 const EmailSetting = require("../Models/EmailSetting");
 const nodemailer = require("nodemailer");
 
+const ProductCategory = require("../Models/ProductCategory");
+
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params; 
@@ -496,7 +498,8 @@ const updatebuyerPreferences = async (req, res) => {
 const getbuyerPreferences = async (req, res) => {
   try {
       const { userId } = req.params;
-      const preferences = await UserPreferences.findOne({ userId }).populate("preferredArtCategories");
+      const preferences = await UserPreferences.findOne({ userId })
+      // .populate("preferredArtCategories");
 
       if (!preferences) {
           return res.status(404).json({ success: false, message: "Preferences not found" });

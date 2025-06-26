@@ -8,11 +8,11 @@ const validateBlogPost = (data) => {
         'string.min': 'Blog title should be at least 5 characters long',
         'string.max': 'Blog title should not exceed 255 characters'
       }),
-      slug: Joi.string().required().pattern(new RegExp('^[a-z]+(-?[a-z]+)*$'))
+    slug: Joi.string().required().pattern(new RegExp('^[a-z0-9]+(-[a-z0-9]+)*$'))
       .messages({
-          'string.empty': 'Slug is required',
-          'string.pattern.base': 'Slug can only contain lowercase letters and hyphens (numbers are optional but not mandatory)'
-      }),  
+        'string.empty': 'Slug is required',
+        'string.pattern.base': 'Slug can only contain lowercase letters, numbers, and hyphens'
+      }),
     summary: Joi.string().required().min(20).max(300)
       .messages({
         'string.empty': 'Summary is required',
@@ -34,4 +34,4 @@ const validateBlogPost = (data) => {
   return schema.validate(data, { abortEarly: false });
 };
 
-module.exports =  validateBlogPost ;
+module.exports = validateBlogPost;

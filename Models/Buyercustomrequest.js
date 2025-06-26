@@ -65,11 +65,7 @@ const BuyerRequestSchema = new mongoose.Schema(
       default: 'Pending',
     },
     rejectedcomment: { type: String },
-    NegotiatedBudget: [{
-      amount: { type: Number, required: true },
-      updatedBy: { type: String, enum: ['buyer', 'artist'], required: true }
-    }],
-
+    NegotiatedBudget: [{ type: Number }],
     Notes: { type: String, required: false },
     BuyerNotes: { type: String },
     updateCount: { type: Number, default: 0 },

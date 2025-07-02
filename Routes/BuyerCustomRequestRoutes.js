@@ -37,6 +37,13 @@ router.put("/update-negiotaite-budget/:id",authMiddleware, NegiotaiteBudgetupdat
 router.get("/get-data-admin",authMiddleware,getalldataforadmin)
 router.get("/get-data-adminbyid/:buyerId",authMiddleware,getdatabybuyerid)
 router.put("/update-negiotaite-Buyer-budget/:id",authMiddleware, NegiotaiteBuyerupdate)
+
+
+
+
+
+
+
 router.put('/buyer-request-buyer-status/:id',authMiddleware, updateBuyerStatus);
 
 

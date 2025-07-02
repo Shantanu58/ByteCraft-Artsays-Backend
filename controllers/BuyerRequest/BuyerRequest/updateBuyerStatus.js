@@ -10,6 +10,15 @@ const updateBuyerStatus = async (req, res) => {
         const requestId = req.params.id;
         const { BuyerStatus, RequestStatus } = req.body;
 
+
+
+
+
+
+
+
+
+
         if (!BuyerStatus || !RequestStatus) {
             return res.status(400).json({
                 message: "BuyerStatus and RequestStatus are required.",

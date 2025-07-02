@@ -209,7 +209,7 @@ const fs = require("fs");
 const updateBuyerRequestByBuyerId = async (req, res) => {
     try {
         const requestId = req.params.id;
-        const { ProductName, Description, NegotiatedBudget, MaxBudget, MinBudget, BuyerNotes, rejectedcomment, BuyerStatus } = req.body;
+        const { ProductName, Description, NegotiatedBudget, MaxBudget, MinBudget, BuyerNotes, rejectedcomment, BuyerStatus, RequestStatus } = req.body;
 
         const existingRequest = await BuyerRequest.findById(requestId)
             .populate('Artist.id', 'name email');
@@ -220,13 +220,13 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
             });
         }
 
-        if (existingRequest.BuyerNegotiatedBudgets.length >= 2) {
+        if (existingRequest.BuyerNegotiatedBudgets.length >= 4) {
             return res.status(400).json({
-                message: "Buyer has reached the maximum of 2 budget updates.",
+                message: "Buyer has reached the maximum of 4 budget updates.",
             });
         }
 
-        let updateFields = { rejectedcomment, BuyerStatus };
+        let updateFields = { rejectedcomment, BuyerStatus, RequestStatus };
 
         if (ProductName || Description || NegotiatedBudget || MaxBudget || MinBudget || BuyerNotes) {
             updateFields = {
@@ -236,6 +236,8 @@ const updateBuyerRequestByBuyerId = async (req, res) => {
                 MaxBudget,
                 MinBudget,
                 BuyerNotes,
+                BuyerStatus,
+                RequestStatus,
             };
             if (NegotiatedBudget) {
                 updateFields.BuyerNegotiatedBudgets = [...existingRequest.BuyerNegotiatedBudgets, NegotiatedBudget];

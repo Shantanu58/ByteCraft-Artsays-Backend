@@ -276,9 +276,9 @@ const updateBuyerRequestByBuyerIdbyartist = async (req, res) => {
         const requestId = req.params.id;
         const { ProductName, Description, MaxBudget, MinBudget, NegotiatedBudget, Notes } = req.body;
 
-        if (!ProductName || !Description || !MaxBudget || !MinBudget || !NegotiatedBudget || !Notes) {
+        if (!ProductName || !Description || !MaxBudget || !MinBudget || !Notes) {
             return res.status(400).json({
-                message: "ProductName, Description, MaxBudget, MinBudget, NegotiatedBudget, and Notes are required.",
+                message: "ProductName, Description, MaxBudget, MinBudget, and Notes are required.",
             });
         }
 

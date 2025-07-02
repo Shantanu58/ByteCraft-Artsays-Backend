@@ -13,6 +13,7 @@ const { createBuyerRequest,
     NegiotaiteBuyerupdate,
     getdatabybuyerid
  } = require("../controllers/BuyerRequest/index");
+ const updateBuyerStatus = require("../controllers/BuyerRequest/BuyerRequest/updateBuyerStatus");
 
 const uploadFiles = (req, res, next) => {
     upload.fields([
@@ -36,6 +37,7 @@ router.put("/update-negiotaite-budget/:id",authMiddleware, NegiotaiteBudgetupdat
 router.get("/get-data-admin",authMiddleware,getalldataforadmin)
 router.get("/get-data-adminbyid/:buyerId",authMiddleware,getdatabybuyerid)
 router.put("/update-negiotaite-Buyer-budget/:id",authMiddleware, NegiotaiteBuyerupdate)
+router.put('/buyer-request-buyer-status/:id',authMiddleware, updateBuyerStatus);
 
 
 

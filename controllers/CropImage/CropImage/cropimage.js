@@ -140,6 +140,7 @@ const addProduct = async (req, res) => {
 
     const newProduct = new Product(productData);
     const savedProduct = await newProduct.save();
+    console.log("New product created:", savedProduct);
 
     await sendProductCreationEmails(savedProduct, req.files);
 

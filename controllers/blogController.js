@@ -251,14 +251,14 @@ const createBlogPost = async (req, res) => {
       blogName,
       slug,
       summary,
-      blogAuthor: user.name || user.username,
+      blogAuthor: `${user.name} ${user.lastName}`,
       blogDescription,
       category,
       tags: tags ? tags.split(",") : [],
       blogImage: req.file ? req.file.path : null,
       uploadedBy: {
         id: userId,
-        name: user.name || user.username,
+        name:`${user.name} ${user.lastName}`,
       },
     });
 
@@ -380,7 +380,7 @@ const updateBlogPost = async (req, res) => {
 // Get all blogs with pagination
 const getAllBlogs = async (req, res) => {
   try {
-    const allBlogs = await BlogPost.find();
+const allBlogs = await BlogPost.find().populate('uploadedBy.id');
 
     if (!allBlogs || allBlogs.length === 0) {
       return res.status(404).json({ message: "No blog posts found" });
@@ -388,9 +388,7 @@ const getAllBlogs = async (req, res) => {
 
     res.status(200).json({ blogs: allBlogs });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving blog posts", error: error.message });
+    res.status(500).json({ message: "Error retrieving blog posts", error: error.message });
   }
 };
 

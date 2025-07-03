@@ -96,7 +96,7 @@ const buyerRequestValidator = Joi.object({
     'any.required': 'Maximum budget is required'
   }),
 
-  PaymentTerm: Joi.string().valid('full', 'installment', 'two-step').required().messages({
+  PaymentTerm: Joi.string().valid('Full Payment', 'Installment', 'Two Step Payment').required().messages({
     'string.empty': 'Payment term is required',
     'any.only': 'Payment term must be one of: full, installment, two-step',
     'any.required': 'Payment term is required'

@@ -29,6 +29,7 @@ const Adminroutes=require('../Routes/adminRoutes.js')
 const ForgotPasswordRoutes=require('../Routes/forgotpasswordRoutes.js')
 const EmailRoutes = require("../Routes/EmailSettingRoutes.js");
 const TemplatesRoutes = require("../Routes/EmailTemplatesRoutes.js")
+const MarketingEmailRoutes = require("../Routes/MarketingEmailRoutes");
 
 module.exports = (app) => {
   app.use('/auth', userRoute);
@@ -64,7 +65,7 @@ module.exports = (app) => {
   app.use('/api',ForgotPasswordRoutes);
   app.use("/api", EmailRoutes)
   app.use("/api", TemplatesRoutes)
-
+  app.use("/api", MarketingEmailRoutes);
  
   
 };

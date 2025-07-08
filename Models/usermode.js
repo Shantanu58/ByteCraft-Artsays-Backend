@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   resetPasswordOtp: { type: String },
   resetPasswordOtpExpiry: { type: Date },
   // Address fields for updating user profile
-  address: {
+  address: [{
     line1: { type: String, default: '' },
     line2: { type: String, default: '' },
     landmark: { type: String, default: '' },
@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
     state: { type: String, default: '' },
     country: { type: String, default: '' },
     pincode: { type: String, default: '' },
-  },
+  }],
+  selectedAddress: { type: String, default: '' },
   gender: { type: String, required: false },
   birthdate: {
     type: Date,

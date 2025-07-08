@@ -106,6 +106,15 @@ const BuyerRequestSchema = new mongoose.Schema(
     PaymentTerm: { type: String, required: true },
     ExpectedDeadline: { type: Number, required: true },
     Comments: { type: String },
+    BuyerSelectedAddress: {
+      line1: { type: String, default: '' },
+      line2: { type: String, default: '' },
+      landmark: { type: String, default: '' },
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      country: { type: String, default: '' },
+      pincode: { type: String, default: '' },
+    },
     RequestStatus: {
       type: String,
       enum: ['Approved', 'Rejected', 'Pending'],

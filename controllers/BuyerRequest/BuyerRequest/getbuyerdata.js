@@ -2,6 +2,7 @@ const BuyerRequest = require("../../../Models/Buyercustomrequest");
 
 const getBuyerRequestsByArtistId = async (req, res) => {
     try {
+
         const ArtistId = req.userID; 
 
         const buyerRequests = await BuyerRequest.find({ "Artist.id": ArtistId })

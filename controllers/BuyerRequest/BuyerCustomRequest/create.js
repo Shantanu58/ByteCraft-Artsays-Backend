@@ -3,7 +3,7 @@
 
 // const createBuyerRequest = async (req, res) => {
 //     try {
- 
+
 //         const { error } = buyerRequestValidator.validate(req.body);
 //         if (error) {
 //             return res.status(400).json({ 
@@ -11,7 +11,7 @@
 //             });
 //         }
 
-   
+
 //         const { 
 //             ProductName, 
 //             Description, 
@@ -29,7 +29,7 @@
 
 
 //         const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;
-        
+
 //         if (!BuyerImage) {
 //             return res.status(400).json({ 
 //                 message: "Reference image is required" 
@@ -39,7 +39,7 @@
 //         const BuyerId = req.userID;
 //         const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
 
-      
+
 //         const newBuyerRequest = new BuyerRequest({
 //             ProductName,
 //             Description,
@@ -56,7 +56,7 @@
 //             Artist: artistId,
 //             Buyer: { 
 //                 id: BuyerId,
-           
+
 //             },
 //             RequestStatus: 'Pending', 
 //         });
@@ -225,7 +225,7 @@ const fs = require("fs");
 //                     padding: 10px 20px !important;
 //                   }
 //                 }
-                
+
 //                 body {
 //                   margin: 0;
 //                   padding: 0;
@@ -234,7 +234,7 @@ const fs = require("fs");
 //                   color: #333333;
 //                   background-color: #f2f2f2;
 //                 }
-                
+
 //                 .credentials-box {
 //                   background: rgb(244, 236, 233);
 //                   border-left: 4px solid rgb(173, 100, 73);
@@ -242,7 +242,7 @@ const fs = require("fs");
 //                   margin: 25px 0;
 //                   border-radius: 4px;
 //                 }
-                
+
 //                 .action-button {
 //                   display: inline-block;
 //                   background: rgb(173, 100, 73);
@@ -254,19 +254,19 @@ const fs = require("fs");
 //                   margin: 20px 0;
 //                   text-align: center;
 //                 }
-                
+
 //                 .detail-item {
 //                   margin-bottom: 12px;
 //                   display: flex;
 //                   flex-wrap: wrap;
 //                 }
-                
+
 //                 .detail-label {
 //                   font-weight: 600;
 //                   min-width: 150px;
 //                   color: #2d3748;
 //                 }
-                
+
 //                 .detail-value {
 //                   color: #4a5568;
 //                 }
@@ -284,13 +284,13 @@ const fs = require("fs");
 //                           </div>
 //                           <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">Custom Art Request</h1>
 //                       </div>
-                      
+
 //                       <!-- Main Content -->
 //                       <div style="padding: 30px;">
 //                           <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${recipientType === 'artist' ? artist.name : recipientType === 'buyer' ? buyer.name : 'Admin'},</p>
-                          
+
 //                           ${content}
-                          
+
 //                           <!-- Request Details Box -->
 //                           <div class="credentials-box">
 //                               <div class="detail-item">
@@ -320,43 +320,43 @@ const fs = require("fs");
 //                               </div>
 //                               ` : ''}
 //                           </div>
-                          
+
 //                           <!-- Action Button -->
 //                           <div style="text-align: center;">
 //                               <a href="http://localhost:3000/login" class="action-button">View Request</a>
 //                           </div>
-                          
+
 //                           <!-- Additional Notes -->
 //                           ${recipientType === 'buyer' ? `
 //                           <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
 //                               Our team will review your request and get back to you soon. You'll be notified once an artist accepts your request.
 //                           </p>
 //                           ` : ''}
-                          
+
 //                           ${recipientType === 'artist' ? `
 //                           <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
 //                               Please review this request and respond within 48 hours. You can accept or decline this request from your artist dashboard.
 //                           </p>
 //                           ` : ''}
-                          
+
 //                           ${recipientType === 'super-admin' ? `
 //                           <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
 //                               Please review this request and ensure it meets our quality standards before it's assigned to an artist.
 //                           </p>
 //                           ` : ''}
-                          
+
 //                           <!-- Support Section -->
 //                           <div style="margin-top: 20px; font-size: 15px; color: #4a5568;">
 //                               <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
 //                           </div>
-                          
+
 //                           <!-- Signature -->
 //                           <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
 //                               <p>Best regards,</p>
 //                               <p><strong>The Artsays Team</strong></p>
 //                           </div>
 //                       </div>
-                      
+
 //                       <!-- Footer -->
 //                       <div style="text-align: center; padding: 20px; background:rgb(244, 236, 233); font-size: 14px; color: #718096;">
 //                           <p>© ${new Date().getFullYear()} Artsays. All rights reserved.</p>
@@ -377,104 +377,104 @@ const fs = require("fs");
 // };
 
 const sendBuyerRequestNotification = async (request, recipientType) => {
-    try {
-      const emailSettings = await EmailSetting.findOne();
-      if (!emailSettings) {
-        console.log("No email settings found in database");
-        return;
-      }
-  
-      const transporter = nodemailer.createTransport({
-        host: emailSettings.mailHost,
-        port: emailSettings.mailPort,
-        secure: emailSettings.mailEncryption === "SSL",
-        auth: {
-          user: emailSettings.mailUsername,
-          pass: emailSettings.mailPassword,
-        },
+  try {
+    const emailSettings = await EmailSetting.findOne();
+    if (!emailSettings) {
+      console.log("No email settings found in database");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: emailSettings.mailHost,
+      port: emailSettings.mailPort,
+      secure: emailSettings.mailEncryption === "SSL",
+      auth: {
+        user: emailSettings.mailUsername,
+        pass: emailSettings.mailPassword,
+      },
+    });
+
+    // Prepare image attachment
+    const imagePath = path.join(
+      __dirname,
+      "../../../controllers/Email/Artsays.png"
+    );
+    let attachments = [];
+
+    if (fs.existsSync(imagePath)) {
+      attachments.push({
+        filename: "artsays-logo.png",
+        path: imagePath,
+        cid: "artsays_logo",
       });
-  
-      // Prepare image attachment
-      const imagePath = path.join(
-        __dirname,
-        "../../../controllers/Email/Artsays.png"
-      );
-      let attachments = [];
-  
-      if (fs.existsSync(imagePath)) {
-        attachments.push({
-          filename: "artsays-logo.png",
-          path: imagePath,
-          cid: "artsays_logo",
-        });
-      }
-  
-      // Get recipient details based on type
-      let recipients = [];
-      let subject = "";
-      let greeting = "";
-      let mainContent = "";
-      let actionNote = "";
-      let additionalNotes = "";
-  
-      const buyer = await User.findById(request.Buyer.id);
-      const artist = await User.findById(request.Artist.id);
-  
-      switch (recipientType) {
-        case "super-admin":
-          const superAdmins = await User.find({ role: "super-admin" });
-          recipients = superAdmins.map(admin => admin.email);
-          subject = `New Custom Art Request - Requires Approval`;
-          greeting = `Dear Admin,`;
-          mainContent = `
+    }
+
+    // Get recipient details based on type
+    let recipients = [];
+    let subject = "";
+    let greeting = "";
+    let mainContent = "";
+    let actionNote = "";
+    let additionalNotes = "";
+
+    const buyer = await User.findById(request.Buyer.id);
+    const artist = await User.findById(request.Artist.id);
+
+    switch (recipientType) {
+      case "super-admin":
+        const superAdmins = await User.find({ role: "super-admin" });
+        recipients = superAdmins.map(admin => admin.email);
+        subject = `New Custom Art Request - Requires Approval`;
+        greeting = `Dear Admin,`;
+        mainContent = `
            <div style="margin-top: 14px; font-size: 15px; color: #4a5568;">
             <p>A new custom product request has been submitted by ${buyer?.name || 'a buyer'}.</p>
             <p>Please review and approve this request in the admin dashboard.</p>
           `;
-          actionNote = `<p>Please review this request and ensure it meets our quality standards before it's assigned to an artist.</p></div>`;
-          break;
-  
-        case "artist":
-          if (artist && artist.email) {
-            recipients = [artist.email];
-            subject = `New Custom Art Request - ${request.ProductName}`;
-            greeting = `Dear ${artist.name},`;
-            mainContent = `
+        actionNote = `<p>Please review this request and ensure it meets our quality standards before it's assigned to an artist.</p></div>`;
+        break;
+
+      case "artist":
+        if (artist && artist.email) {
+          recipients = [artist.email];
+          subject = `New Custom Art Request - ${request.ProductName}`;
+          greeting = `Dear ${artist.name},`;
+          mainContent = `
              <div style="margin-top: 20px; font-size: 15px; color: #4a5568;">
               <p>A new custom product request has been assigned to you by ${buyer.name}:</p>
              </div>`;
-          }
-          break;
-  
-        case "buyer":
-          if (buyer && buyer.email) {
-            recipients = [buyer.email];
-            subject = `Your Custom Art Request Has Been Submitted`;
-            greeting = `Dear ${buyer.name},`;
-            mainContent = `
+        }
+        break;
+
+      case "buyer":
+        if (buyer && buyer.email) {
+          recipients = [buyer.email];
+          subject = `Your Custom Art Request Has Been Submitted`;
+          greeting = `Dear ${buyer.name},`;
+          mainContent = `
              <div style="margin-top: 20px; font-size: 15px; color: #4a5568;">
               <p>Your custom product request has been successfully submitted:</p>
               <p>Our team will review your request and get back to you soon.</p>
             `;
-            additionalNotes = `
+          additionalNotes = `
               <p>You'll be notified once an artist <strong>Approved</strong> your request.</p>
               </div>
             `;
-            
-          }
-          break;
-      }
-  
-      if (recipients.length === 0) {
-        console.log(`No recipients found for ${recipientType} notification`);
-        return;
-      }
-  
-      const mailOptions = {
-        from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
-        to: recipients.join(","),
-        subject: subject,
-        html: `
+
+        }
+        break;
+    }
+
+    if (recipients.length === 0) {
+      console.log(`No recipients found for ${recipientType} notification`);
+      return;
+    }
+
+    const mailOptions = {
+      from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
+      to: recipients.join(","),
+      subject: subject,
+      html: `
           <!DOCTYPE html>
           <html>
           <head>
@@ -615,99 +615,110 @@ const sendBuyerRequestNotification = async (request, recipientType) => {
           </body>
           </html>
         `,
-        attachments: [...attachments],
-      };
-  
-      await transporter.sendMail(mailOptions);
-      console.log(`Notification sent to ${recipientType}`);
-    } catch (error) {
-      console.error(`Error sending ${recipientType} notification:`, error);
-    }
-  };
+      attachments: [...attachments],
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Notification sent to ${recipientType}`);
+  } catch (error) {
+    console.error(`Error sending ${recipientType} notification:`, error);
+  }
+};
 
 const createBuyerRequest = async (req, res) => {
-    try {
-        const { error } = buyerRequestValidator.validate(req.body);
-        if (error) {
-            return res.status(400).json({ 
-                message: error.details[0].message 
-            });
-        }
-
-        const { 
-            ProductName, 
-            Description, 
-            ArtType, 
-            Size, 
-            ColourPreferences, 
-            IsFramed, 
-            MinBudget, 
-            MaxBudget, 
-            PaymentTerm, 
-            ExpectedDeadline, 
-            Comments,
-            Artist 
-        } = req.body;
-
-        const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;
-        
-        if (!BuyerImage) {
-            return res.status(400).json({ 
-                message: "Reference image is required" 
-            });
-        }
-
-        const BuyerId = req.userID;
-        const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
-
-        const newBuyerRequest = new BuyerRequest({
-            ProductName,
-            Description,
-            BuyerImage,
-            ArtType,
-            Size,
-            ColourPreferences: JSON.parse(ColourPreferences),
-            IsFramed,
-            MinBudget: parseFloat(MinBudget),
-            MaxBudget: parseFloat(MaxBudget),
-            PaymentTerm,
-            ExpectedDeadline: parseInt(ExpectedDeadline),
-            Comments,
-            Artist: artistId,
-            Buyer: { 
-                id: BuyerId,
-            },
-            RequestStatus: 'Pending', 
-        });
-
-        if (newBuyerRequest.MaxBudget <= newBuyerRequest.MinBudget) {
-            return res.status(400).json({ 
-                message: "Maximum budget must be greater than minimum budget" 
-            });
-        }
-
-        await newBuyerRequest.save();
-
-        // Send notifications to all parties
-        try {
-            await sendBuyerRequestNotification(newBuyerRequest, "super-admin");
-            await sendBuyerRequestNotification(newBuyerRequest, "artist");
-            await sendBuyerRequestNotification(newBuyerRequest, "buyer");
-        } catch (notificationError) {
-            console.error("Error sending notifications:", notificationError);
-        }
-
-        res.status(201).json({
-            message: "Buyer request created successfully",
-            buyerRequest: newBuyerRequest,
-        });
-    } catch (error) {
-        console.error("Error creating buyer request:", error);
-        res.status(500).json({
-            message: "Error creating buyer request",
-            error: error.message,
-        });
+  try {
+    const { error } = buyerRequestValidator.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message
+      });
     }
+
+    const {
+      ProductName,
+      Description,
+      ArtType,
+      Size,
+      ColourPreferences,
+      IsFramed,
+      MinBudget,
+      MaxBudget,
+      PaymentTerm,
+      InstallmentDuration,
+      ExpectedDeadline,
+      Comments,
+      Artist
+    } = req.body;
+    const BuyerSelectedAddress = req.body.BuyerSelectedAddress || {
+      line1: '',
+      line2: '',
+      landmark: '',
+      city: '',
+      state: '',
+      country: '',
+      pincode: ''
+    };
+    const BuyerImage = req.files && req.files.BuyerImage ? req.files.BuyerImage[0].path : null;
+
+    if (!BuyerImage) {
+      return res.status(400).json({
+        message: "Reference image is required"
+      });
+    }
+
+    const BuyerId = req.userID;
+    const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
+
+    const newBuyerRequest = new BuyerRequest({
+      ProductName,
+      Description,
+      BuyerImage,
+      ArtType,
+      Size,
+      ColourPreferences: JSON.parse(ColourPreferences),
+      IsFramed,
+      MinBudget: parseFloat(MinBudget),
+      MaxBudget: parseFloat(MaxBudget),
+      PaymentTerm,
+      InstallmentDuration,
+      ExpectedDeadline: parseInt(ExpectedDeadline),
+      Comments,
+      Artist: artistId,
+      Buyer: {
+        id: BuyerId,
+      },
+      BuyerSelectedAddress,
+      RequestStatus: 'Pending',
+    });
+
+    if (newBuyerRequest.MaxBudget <= newBuyerRequest.MinBudget) {
+      return res.status(400).json({
+        message: "Maximum budget must be greater than minimum budget"
+      });
+    }
+
+    await newBuyerRequest.save();
+
+    // Send notifications to all parties
+    try {
+      await sendBuyerRequestNotification(newBuyerRequest, "super-admin");
+      await sendBuyerRequestNotification(newBuyerRequest, "artist");
+      await sendBuyerRequestNotification(newBuyerRequest, "buyer");
+    } catch (notificationError) {
+      console.error("Error sending notifications:", notificationError);
+    }
+
+    res.status(201).json({
+      message: "Buyer request created successfully",
+      buyerRequest: newBuyerRequest,
+    });
+  } catch (error) {
+    console.error("Error creating buyer request:", error);
+    res.status(500).json({
+      message: "Error creating buyer request",
+      error: error.message,
+    });
+  }
 };
 
 module.exports = createBuyerRequest;

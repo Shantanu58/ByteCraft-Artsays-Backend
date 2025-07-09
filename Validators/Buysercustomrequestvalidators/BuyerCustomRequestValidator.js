@@ -68,7 +68,7 @@ const buyerRequestValidator = Joi.object({
       if (!Array.isArray(parsed)) {
         return helpers.error('any.invalid');
       }
-      return value; // Return original string to be parsed later
+      return value;
     } catch (e) {
       return helpers.error('any.invalid');
     }
@@ -102,6 +102,17 @@ const buyerRequestValidator = Joi.object({
     'any.required': 'Payment term is required'
   }),
 
+  InstallmentDuration: Joi.number().integer().valid(3, 6, 9, 12, 24)
+    .when('PaymentTerm', {
+      is: 'Installment',
+      then: Joi.required(),
+      otherwise: Joi.optional()
+    })
+    .messages({
+      'any.required': 'Installment duration is required when payment term is Installment',
+      'any.only': 'Installment duration must be one of 3, 6, 9, 12, or 24 months'
+    }),
+
   ExpectedDeadline: Joi.number().integer().positive().required().messages({
     'number.base': 'Deadline must be a number',
     'number.integer': 'Deadline must be an integer',
@@ -122,7 +133,25 @@ const buyerRequestValidator = Joi.object({
     'string.hex': 'Artist ID must be a valid hexadecimal',
     'any.required': 'Artist selection is required'
   }),
-
+  BuyerSelectedAddress: Joi.object({
+    line1: Joi.string().required().messages({
+      'string.empty': 'Address line 1 is required'
+    }),
+    line2: Joi.string().allow(''),
+    landmark: Joi.string().allow(''),
+    city: Joi.string().required().messages({
+      'string.empty': 'City is required'
+    }),
+    state: Joi.string().required().messages({
+      'string.empty': 'State is required'
+    }),
+    country: Joi.string().required().messages({
+      'string.empty': 'Country is required'
+    }),
+    pincode: Joi.string().required().messages({
+      'string.empty': 'Pincode is required'
+    })
+  }),
   RequestStatus: Joi.string()
     .valid('Approved', 'Rejected', 'Pending', 'Negotiating')
     .default('Pending')

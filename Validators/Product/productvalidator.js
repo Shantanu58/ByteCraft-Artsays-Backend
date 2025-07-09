@@ -76,9 +76,15 @@ const productValidator = Joi.object({
     'artist_special'
   )).default([]),
   allowInstallments: Joi.boolean().default(false),
+   installmentDuration: Joi.string().when('allowInstallments', {
+    is: true,
+    then: Joi.required().messages({
+      'any.required': 'Installment duration is required when installments are allowed'
+    }),
+    otherwise: Joi.optional()
+  }),
   status: Joi.string().valid('Pending', 'Approved', 'Rejected').default('Pending'),
 
-  // Add these new fields for Shipping & Delivery
   shippingCharges: Joi.number().min(0).required().messages({
     'number.min': 'Shipping charges cannot be negative',
     'any.required': 'Shipping charges are required'

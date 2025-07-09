@@ -104,6 +104,7 @@ const BuyerRequestSchema = new mongoose.Schema(
     MinBudget: { type: Number, required: true },
     MaxBudget: { type: Number, required: true },
     PaymentTerm: { type: String, required: true },
+    InstallmentDuration: { type: Number },
     ExpectedDeadline: { type: Number, required: true },
     Comments: { type: String },
     BuyerSelectedAddress: {

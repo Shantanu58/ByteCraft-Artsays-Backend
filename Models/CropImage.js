@@ -13,7 +13,7 @@ const productSchema = new mongoose.Schema(
       required: true
     },
     mainCategory: {
-       type: String,
+      type: String,
       ref: 'MainCategory',
       required: true
     },
@@ -114,14 +114,18 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    installmentDuration: {
+      type: [Number], 
+      default: [],
+    },
     status: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],
       default: 'Pending'
     },
 
-     // Add Shipping & Delivery fields
-     shippingCharges: {
+    // Add Shipping & Delivery fields
+    shippingCharges: {
       type: Number,
       required: true,
       min: 0
@@ -191,8 +195,8 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: 0
     },
-     // Legal & Compliance fields
-     ownershipConfirmation: {
+    // Legal & Compliance fields
+    ownershipConfirmation: {
       type: Boolean,
       required: true,
       default: false
@@ -239,150 +243,150 @@ const productSchema = new mongoose.Schema(
       default: 'digital'
     },
     certificateFile: {
-      type: String  
+      type: String
     },
     coaFile: {
-      type: String  
+      type: String
     },
 
-     // NFT Details 
-  blockchainNetwork: {
-    type: String,
-    trim: true
-  },
-  smartContractAddress: {
-    type: String,
-    trim: true
-  },
-  tokenStandard: {
-    type: String,
-    trim: true
-  },
-  tokenId: {
-    type: String,
-    trim: true,
-    unique: true,  
-    sparse: true   
-  },
-  walletAddress: {
-    type: String,
-    trim: true
-  },
-  royaltyPercentage: {
-    type: Number,
-    min: 0,
-    max: 50,
-  },
-  mintingType: {
-    type: String,
-    enum: ['pre_minted', 'lazy']
-  },
-  licenseType: {
-    type: String,
-    enum: ['personal', 'limited', 'full', 'exclusive']
-  },
-  ipfsStorage: {
-    type: Boolean,
-    default: false
-  },
-  unlockableContent: {
-    type: Boolean,
-    default: false
-  },
-  partOfCollection: {
-    type: Boolean,
-    default: false
-  },
-  collectionName: {
-    type: String,
-    trim: true
-  },
-  editionSize: {
-    type: Number,
-    min: 1
-  },
-  addressLine1: {
-    type: String,
-    trim: true
-  },
-  addressLine2: {
-    type: String,
-    trim: true
-  },
-  landmark: {
-    type: String,
-    trim: true
-  },
-  city: {
-    type: String,
-    trim: true
-  },
-  state: {
-    type: String,
-    trim: true
-  },
-  country: {
-    type: String,
-    trim: true
-  },
-  pincode: {
-    type: String,
-    trim: true
-  },
-  rarityType: {
-    type: String,
-    enum: ['common', 'rare', 'epic', 'legendary']
-  },
-  traits: {
-    type: String,
-    trim: true
-  },
+    // NFT Details 
+    blockchainNetwork: {
+      type: String,
+      trim: true
+    },
+    smartContractAddress: {
+      type: String,
+      trim: true
+    },
+    tokenStandard: {
+      type: String,
+      trim: true
+    },
+    tokenId: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true
+    },
+    walletAddress: {
+      type: String,
+      trim: true
+    },
+    royaltyPercentage: {
+      type: Number,
+      min: 0,
+      max: 50,
+    },
+    mintingType: {
+      type: String,
+      enum: ['pre_minted', 'lazy']
+    },
+    licenseType: {
+      type: String,
+      enum: ['personal', 'limited', 'full', 'exclusive']
+    },
+    ipfsStorage: {
+      type: Boolean,
+      default: false
+    },
+    unlockableContent: {
+      type: Boolean,
+      default: false
+    },
+    partOfCollection: {
+      type: Boolean,
+      default: false
+    },
+    collectionName: {
+      type: String,
+      trim: true
+    },
+    editionSize: {
+      type: Number,
+      min: 1
+    },
+    addressLine1: {
+      type: String,
+      trim: true
+    },
+    addressLine2: {
+      type: String,
+      trim: true
+    },
+    landmark: {
+      type: String,
+      trim: true
+    },
+    city: {
+      type: String,
+      trim: true
+    },
+    state: {
+      type: String,
+      trim: true
+    },
+    country: {
+      type: String,
+      trim: true
+    },
+    pincode: {
+      type: String,
+      trim: true
+    },
+    rarityType: {
+      type: String,
+      enum: ['common', 'rare', 'epic', 'legendary']
+    },
+    traits: {
+      type: String,
+      trim: true
+    },
 
-  // Antique & Vintage Details
-originRegion: {
-  type: String,
-  enum: ['france', 'japan', 'india', 'china', 'uk', 'usa']
-},
-periodEra: {
-  type: String,
-  enum: ['victorian', 'art_deco', 'ming', 'edwardian', 'georgian']
-},
-antiqueCondition: {
-  type: String,
-  enum: ['new', 'excellent', 'good', 'fair', 'poor']
-},
-restorationHistory: {
-  type: String,
-  trim: true
-},
-provenanceHistory: {
-  type: String,
-  trim: true
-},
-engravingMarkings: {
-  type: String,
-  trim: true
-},
-patinaWear: {
-  type: String,
-  trim: true
-},
-isHandmade: {
-  type: Boolean,
-  default: false
-},
-originalReproduction: {
-  type: String,
-  enum: ['original', 'replica', 'reproduction']
-},
-museumExhibitionHistory: {
-  type: String,
-  trim: true
-},
-customEngravingAvailable: {
-  type: Boolean,
-  default: false
-}
+    // Antique & Vintage Details
+    originRegion: {
+      type: String,
+      enum: ['france', 'japan', 'india', 'china', 'uk', 'usa']
+    },
+    periodEra: {
+      type: String,
+      enum: ['victorian', 'art_deco', 'ming', 'edwardian', 'georgian']
+    },
+    antiqueCondition: {
+      type: String,
+      enum: ['new', 'excellent', 'good', 'fair', 'poor']
+    },
+    restorationHistory: {
+      type: String,
+      trim: true
+    },
+    provenanceHistory: {
+      type: String,
+      trim: true
+    },
+    engravingMarkings: {
+      type: String,
+      trim: true
+    },
+    patinaWear: {
+      type: String,
+      trim: true
+    },
+    isHandmade: {
+      type: Boolean,
+      default: false
+    },
+    originalReproduction: {
+      type: String,
+      enum: ['original', 'replica', 'reproduction']
+    },
+    museumExhibitionHistory: {
+      type: String,
+      trim: true
+    },
+    customEngravingAvailable: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );

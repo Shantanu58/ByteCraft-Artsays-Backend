@@ -115,6 +115,9 @@ const addProduct = async (req, res) => {
       coaFile: req.files["coaFile"]
         ? `/uploads/coa/${req.files["coaFile"][0].filename}`
         : undefined,
+      installmentDuration: value.allowInstallments
+        ? value.installmentDuration || []
+        : [],
     };
 
     if (value.coaAvailable) {
@@ -140,7 +143,6 @@ const addProduct = async (req, res) => {
 
     const newProduct = new Product(productData);
     const savedProduct = await newProduct.save();
-    console.log("New product created:", savedProduct);
 
     await sendProductCreationEmails(savedProduct, req.files);
 
@@ -274,8 +276,8 @@ const sendProductCreatorEmail = async (
       product.status === "Approved"
         ? "background-color: #48bb78; color: white;"
         : product.status === "Pending"
-        ? "background-color: #ed8936; color: white;"
-        : "background-color: #f56565; color: white;";
+          ? "background-color: #ed8936; color: white;"
+          : "background-color: #f56565; color: white;";
 
     const mailOptions = {
       from: `${emailSettings.mailFromName} <${emailSettings.mailFromAddress}>`,
@@ -316,19 +318,17 @@ const sendProductCreatorEmail = async (
       <!-- Header -->
       <div class="header" style="background: linear-gradient(135deg, rgb(204, 151, 121) 0%, rgb(204, 151, 121) 100%); padding: 30px 20px; text-align: center; color: white;">
         <div class="logo-container" style="margin-bottom: 20px;">
-          ${
-            attachments.length > 0
-              ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
-              : ""
-          }
+          ${attachments.length > 0
+          ? `<img src="cid:artsays_logo" alt="Artsays Logo" style="width: 250px; height: auto;">`
+          : ""
+        }
         </div>
         <h1 style="font-size: 24px; font-weight: 600; margin: 0; color: black;">Product Created Successfully</h1>
       </div>
 
       <!-- Content -->
       <div class="content" style="padding: 30px;">
-        <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${
-          user.name
+        <p style="font-size: 18px; margin-bottom: 25px; color: #2d3748;">Dear ${user.name
         },</p>
         
         <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">Thank you for creating a new product on Artsays. Your product has been successfully submitted!</p>
@@ -351,9 +351,8 @@ const sendProductCreatorEmail = async (
           </div>
           <div style="margin-bottom: 12px; display: flex;">
             <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Price:</span>
-            <span style="color: #4a5568;">₹${
-              product.finalPrice || product.sellingPrice
-            }</span>
+            <span style="color: #4a5568;">₹${product.finalPrice || product.sellingPrice
+        }</span>
           </div>
           <div style="margin-bottom: 12px; display: flex;">
             <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Quantity:</span>
@@ -367,30 +366,28 @@ const sendProductCreatorEmail = async (
             <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Created On:</span>
             <span style="color: #4a5568;">
               ${new Date(product.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
             </span>
           </div>
-          ${
-            product.productType === "limited"
-              ? `
+          ${product.productType === "limited"
+          ? `
           <div style="margin-bottom: 12px; display: flex;">
             <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Edition:</span>
             <span style="color: #4a5568;">${product.editionNumber}</span>
           </div>
           `
-              : ""
-          }
+          : ""
+        }
         </div>
         
         <!-- Main Product Image -->
-        ${
-          attachments.find(att => att.cid === "product_main_image")
-            ? `
+        ${attachments.find(att => att.cid === "product_main_image")
+          ? `
         <div style="margin: 30px 0;">
           <p style="font-weight: 600; margin-bottom: 15px; color: #2d3748; font-size: 16px;">Product Main Image:</p>
           <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-width: 300px; margin: 0 auto;">
@@ -398,17 +395,16 @@ const sendProductCreatorEmail = async (
           </div>
         </div>
         `
-            : ""
+          : ""
         }
         
         <p style="margin-bottom: 25px; font-size: 16px; color: #4a5568;">
-          ${
-            product.status === "Approved"
-              ? "Your product has been approved and is now live on our platform!"
-              : product.status === "Pending"
-              ? "Your product is under review by our team. You will be notified once it is approved."
-              : "Your product has been rejected. Please check the guidelines and submit again."
-          }
+          ${product.status === "Approved"
+          ? "Your product has been approved and is now live on our platform!"
+          : product.status === "Pending"
+            ? "Your product is under review by our team. You will be notified once it is approved."
+            : "Your product has been rejected. Please check the guidelines and submit again."
+        }
         </p>
         
         <!-- Action Button -->
@@ -536,13 +532,13 @@ const sendAdminNotificationEmail = async (transporter, emailSettings, admins, us
           <div style="margin-bottom: 12px; display: flex;">
             <span style="font-weight: 600; min-width: 120px; color: #2d3748;">Created On:</span>
             <span style="color: #4a5568;">
-              ${new Date(product.createdAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              ${new Date(product.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
             </span>
           </div>
         </div>

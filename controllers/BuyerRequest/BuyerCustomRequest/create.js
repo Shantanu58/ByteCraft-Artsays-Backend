@@ -669,6 +669,16 @@ const createBuyerRequest = async (req, res) => {
     const BuyerId = req.userID;
     const artistId = typeof Artist === 'string' ? { id: Artist } : Artist;
 
+    const buyer = await User.findById(BuyerId);
+    if (!buyer) {
+      return res.status(404).json({ message: 'Buyer not found' });
+    }
+
+    const artist = await User.findById(artistId.id);
+    if (!artist) {
+      return res.status(404).json({ message: 'Artist not found' });
+    }
+
     const newBuyerRequest = new BuyerRequest({
       ProductName,
       Description,
@@ -683,9 +693,14 @@ const createBuyerRequest = async (req, res) => {
       InstallmentDuration,
       ExpectedDeadline: parseInt(ExpectedDeadline),
       Comments,
-      Artist: artistId,
+      Artist: {
+        id: artist._id,
+        name: artist.name
+      },
       Buyer: {
-        id: BuyerId,
+        id: buyer._id,
+        name: buyer.name,
+        email: buyer.email
       },
       BuyerSelectedAddress,
       RequestStatus: 'Pending',
@@ -696,7 +711,6 @@ const createBuyerRequest = async (req, res) => {
         message: "Maximum budget must be greater than minimum budget"
       });
     }
-
     await newBuyerRequest.save();
 
     // Send notifications to all parties

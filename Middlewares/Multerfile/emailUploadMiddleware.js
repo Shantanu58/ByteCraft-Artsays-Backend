@@ -1,7 +1,8 @@
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
  
+// Create dynamic directory based on date
 const getUploadPath = () => {
   const date = new Date().toISOString().split("T")[0];
   const dir = path.join("Attachments", "Email", date);
@@ -11,12 +12,14 @@ const getUploadPath = () => {
   return dir;
 };
  
+// Allowed file types
 const allowedExtensions = [
   ".jpg", ".jpeg", ".png", ".gif",
   ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
   ".txt", ".csv"
 ];
  
+// File filter
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowedExtensions.includes(ext)) {
@@ -26,6 +29,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
  
+// Multer storage config
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, getUploadPath());
@@ -38,6 +42,7 @@ const storage = multer.diskStorage({
   }
 });
  
+// Multer middleware
 const upload = multer({
   storage,
   fileFilter,
@@ -47,7 +52,8 @@ const upload = multer({
   }
 }).array("attachments", 10);
  
-export const emailAttachmentsUpload = (req, res, next) => {
+// Final middleware to use in routes
+const emailAttachmentsUpload = (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
       return res.status(400).json({
@@ -64,3 +70,6 @@ export const emailAttachmentsUpload = (req, res, next) => {
   });
 };
  
+module.exports = {
+  emailAttachmentsUpload
+};
